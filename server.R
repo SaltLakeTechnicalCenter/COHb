@@ -3,152 +3,303 @@ source("COHb.R")
 server <- function(input, output, session) {
   OEL = 35*ppm
   OelLabel = "OSHA PEL"
+  
+  #========== Input Parameters ==========#
+  # COHb in blood sample (%)
   XCOHb = reactive(input$XCOHb*percent)
+  XCOHb.sd = reactive(input$XCOHb.sd*percent)
+  XCOHb.MC = reactive(rnorm(n(),XCOHb(),XCOHb.sd()))
+  # Hemoglobin in blood sample (grams/100mL)
   Hb = reactive(input$Hb*gram/(100*mL))
-  COHb.D = reactive(COHb(XCOHb=XCOHb(),Hb=Hb()))
-  PB = reactive(
-    if (input$PB_method=='elevation') {P(input$z*ft)} # I need to implement the function in the library here
-    else if (input$PB_method=='pressure') {input$PB*mmHg}
-  )
-  output$PB = renderPrint(cat(PB()/mmHg,"mmHg"))
-  t_t = reactive(input$t_t*minute)
-  AL_t = reactive(input$AL_t)
-  x.O2_t = reactive(input$x.O2_t*percent)
-  x.CO_t = reactive(input$x.CO_t*ppm)
-  t_c = reactive(input$t_c*minute)
-  AL_c = reactive(input$AL_c)
-  x.O2_c = reactive(input$x.O2_c*percent)
-  x.CO_c = reactive(input$x.CO_c*ppm)
-  SS = reactive(input$SS)
-  t_e = reactive(input$t_e*minute)
-  AL_e = reactive(input$AL_e)
-  x.O2_e = reactive(input$x.O2_e*percent)
-  x.CO_e.s = reactive(input$x.CO_e.s*ppm)
-  
-  VA_t = reactive(VA(AL=AL_t(),PB=PB()))
-  output$VA_t = renderPrint(cat(VA_t()/(liter/minute),"liter/minute"))
-  
-  DL_t = reactive(DL(AL=AL_t(),PB=PB(),x.O2=x.O2_t()))
-  output$DL_t = renderPrint(cat(DL_t()/(mL/minute/mmHg),"mL/minute/mmHg"))
-  
-  beta_t = reactive(beta(PB=PB(),DL=DL_t(),VA=VA_t()))
-  output$beta_t = renderPrint(cat(beta_t()/(mmHg/mL),"mmHg*second/mL"))
-  
-  PICO_t = reactive(PICO(PB=PB(),x.CO=x.CO_t()))
-  output$PICO_t = renderPrint(cat(PICO_t()/mmHg,"mmHg"))
-  
-  PCO2_t = reactive(PCO2(PB=PB(),x.CO=x.CO_t(),x.O2=x.O2_t()))
-  output$PCO2_t = renderPrint(cat(PCO2_t()/mmHg,"mmHg"))
-  
-  COHb.C = reactive(findInitCOHb(t=t_t(),COHb.f=COHb.D(),Vb=Vb(),beta=beta_t(),PICO=PICO_t(),PCO2=PCO2_t(),Hb=Hb()))
-  output$COHb.C = renderPrint(cat(COHb.C()))
-  
-  XCOHb.C = reactive(COHb.C()/Hf/Hb())
-  output$XCOHb.C = renderPrint(cat(XCOHb.C()/percent,"%"))
-  
-  VA_c = reactive(VA(AL=AL_c(),PB=PB()))
-  output$VA_c = renderPrint(cat(VA_c()/(liter/minute),"liter/minute"))
-  
-  DL_c = reactive(DL(AL=AL_c(),PB=PB(),x.O2=x.O2_c()))
-  output$DL_c = renderPrint(cat(DL_c()/(mL/minute/mmHg),"mL/minute/mmHg"))
-  
-  beta_c = reactive(beta(PB=PB(),DL=DL_c(),VA=VA_c()))
-  output$beta_c = renderPrint(cat(beta_c()/(mmHg/mL),"mmHg*second/mL"))
-  
-  PICO_c = reactive(PICO(PB=PB(),x.CO=x.CO_c()))
-  output$PICO_c = renderPrint(cat(PICO_c()/mmHg,"mmHg"))
-  
-  PCO2_c = reactive(PCO2(PB=PB(),x.CO=x.CO_c(),x.O2=x.O2_c()))
-  output$PCO2_c = renderPrint(cat(PCO2_c()/mmHg,"mmHg"))
-  
-  COHb.B = reactive(findInitCOHb(t=t_c(),COHb.f=COHb.C(),Vb=Vb(),beta=beta_c(),PICO=PICO_c(),PCO2=PCO2_c(),Hb=Hb()))
-  output$COHb.B = renderPrint(cat(COHb.B()))
-  
-  XCOHb.B = reactive(COHb.B()/Hf/Hb())
-  output$XCOHb.B = renderPrint(cat(XCOHb.B()/percent,"%"))
-  
-  XCOHb.A = reactive(XCOHb.0(SS=SS()))
-  output$XCOHb.A = renderPrint(cat(XCOHb.A()/percent,"%"))
-  
-  COHb.A = reactive(Hf*Hb()*XCOHb.A())
-  output$COHb.A = renderPrint(cat(COHb.A()))
-  
-  DL_e = reactive(DL(AL=AL_e(),PB=PB(),x.O2=x.O2_e()))
-  output$DL_e = renderPrint(cat(DL_e()/(mL/minute/mmHg),"mL/minute/mmHg"))
-  
-  VA_e = reactive(VA(AL=AL_e(),PB=PB()))
-  output$VA_e = renderPrint(cat(VA_e()/(liter/minute),"liter/minute"))
-  
-  beta_e = reactive(beta(PB=PB(),DL=DL_e(),VA=VA_e()))
-  output$beta_e = renderPrint(cat(beta_e()/(mmHg/mL),"mmHg*second/mL"))
-  
-  x.CO_e = reactive(findMeanCO(t=t_e(),COHb.i=COHb.A(),COHb.f=COHb.B(),Vb=Vb(),beta=beta_e(),Hb=Hb(),PB=PB(),x.O2=x.O2_e()))
-  output$x.CO_e = renderPrint(cat(x.CO_e()/ppm,"ppm"))
-  
-  PICO_e = reactive(PICO(PB=PB(),x.CO=x.CO_e()))
-  output$PICO_e = renderPrint(cat(PICO_e()/mmHg,"mmHg"))
-  
-  PCO2_e = reactive(PCO2(PB=PB(),x.CO=x.CO_e(),x.O2=x.O2_e()))
-  output$PCO2_e = renderPrint(cat(PCO2_e()/mmHg,"mmHg"))
-  
-  x.CO_e.o = reactive(x.CO_e()-x.CO_e.s())
-  output$x.CO_e.o = renderPrint(cat(x.CO_e.o()/ppm,"ppm"))
-  
-  AveragingPeriod8h = reactive(ifelse(t_e() > 480*minute, t_e(), 480*minute))
-  TWA8Hours = reactive(x.CO_e.o()*t_e()/AveragingPeriod8h())
-  
-  
-  h.rsd = reactive(input$h.sd/input$h)
-  output$h.rsd = renderText(h.rsd())
-  w.rsd = reactive(input$w.sd/input$w)
-  output$w.rsd = renderText(w.rsd())
-  Vb = reactive({
-    w = input$w*pound
-    h = input$h*inch
-    Vb.m(W=w,H=h)
+  Hb.sd = reactive(input$Hb.sd*gram/(100*mL))
+  Hb.MC = reactive(rnorm(n(),Hb(),Hb.sd()))
+  # Weight (pounds)
+  w = reactive(input$w*pound)
+  w.sd = reactive(input$w.sd*pound)
+  w.MC = reactive(rnorm(n(),w(),w.sd()))
+  # Height (inches)
+  h = reactive(input$h*inch)
+  h.sd = reactive(input$h.sd*inch)
+  h.MC = reactive(rnorm(n(),h(),h.sd()))
+  # Smoker Status
+  SS = reactive({
+    if (input$SS>4) updateNumericInput(session, "SS", value = 4)
+    if (input$SS<0) updateNumericInput(session, "SS", value = 0)
+    input$SS
   })
-
-  output$Vb = renderPrint(cat(Vb()/liter,"liter"))
-  output$COHb.D = renderPrint(cat(COHb.D()))
+  SS.sd = reactive(input$SS.sd)
+  SS.MC = reactive(rnorm(n(),SS(),SS.sd()))
+  # Elevation
+  z = reactive(input$z*ft)
+  z.sd = reactive(input$z.sd*ft)
+  z.MC = reactive(rnorm(n(),z(),z.sd()))
+  # Atmospheric Pressure (mmHg)
+  PB = reactive(
+    if (input$PB_method=='elevation') P(z())
+    else if (input$PB_method=='pressure') input$PB*mmHg
+  )
+  output$PB = renderPrint(cat("PB =",PB()/mmHg,"mmHg"))
+  PB.sd = reactive(input$PB.sd*mmHg)
+  PB.MC = reactive(
+    if (input$PB_method=='elevation') P(z.MC())
+    else if (input$PB_method=='pressure') rnorm(n(),PB(),PB.sd())
+  )
+  output$PB.sd = renderPrint(cat(sd(PB.MC())/mmHg,"mmHg"))
+  # Oxygen Therapy duration (minutes)
+  t_t = reactive(input$t_t*minute)
+  t_t.sd = reactive(input$t_t.sd*minute)
+  t_t.MC = reactive(rnorm(n(),t_t(),t_t.sd()))
+  # Oxygen Therapy activity Level
+  AL_t = reactive(input$AL_t)
+  AL_t.sd = reactive(input$AL_t.sd)
+  AL_t.MC = reactive(rnorm(n(),AL_t(),AL_t.sd()))
+  # Oxygen Therapy duration (minutes)
+  x.O2_t = reactive(input$x.O2_t*percent)
+  x.O2_t.sd = reactive(input$x.O2_t.sd*percent)
+  x.O2_t.MC = reactive(rnorm(n(),x.O2_t(),x.O2_t.sd()))
+  # Oxygen Therapy oxygen level (% oxygen)
+  x.CO_t = reactive(input$x.CO_t*ppm)
+  x.CO_t.sd = reactive(input$x.CO_t.sd*ppm)
+  x.CO_t.MC = reactive(rnorm(n(),x.CO_t(),x.CO_t.sd()))
+  # Clearance duration (minutes)
+  t_c = reactive(input$t_c*minute)
+  t_c.sd = reactive(input$t_c.sd*minute)
+  t_c.MC = reactive(rnorm(n(),t_c(),t_c.sd()))
+  # Clearance activity Level:
+  AL_c = reactive(input$AL_c)
+  AL_c.sd = reactive(input$AL_c.sd)
+  AL_c.MC = reactive(rnorm(n(),AL_c(),AL_c.sd()))
+  # Clearance duration (minutes)
+  x.O2_c = reactive(input$x.O2_c*percent)
+  x.O2_c.sd = reactive(input$x.O2_c.sd*percent)
+  x.O2_c.MC = reactive(rnorm(n(),x.O2_c(),x.O2_c.sd()))
+  # Clearance oxygen level (% oxygen)
+  x.CO_c = reactive(input$x.CO_c*ppm)
+  x.CO_c.sd = reactive(input$x.CO_c.sd*ppm)
+  x.CO_c.MC = reactive(rnorm(n(),x.CO_c(),x.CO_c.sd()))
+  # Exposure duration (minutes)
+  t_e = reactive(input$t_e*minute)
+  t_e.sd = reactive(input$t_e.sd*minute)
+  t_e.MC = reactive(rnorm(n(),t_e(),t_e.sd()))
+  # Exposure activity Level
+  AL_e = reactive(input$AL_e)
+  AL_e.sd = reactive(input$AL_e.sd)
+  AL_e.MC = reactive(rnorm(n(),AL_e(),AL_e.sd()))
+  # Exposure duration (minutes)
+  x.O2_e = reactive(input$x.O2_e*percent)
+  x.O2_e.sd = reactive(input$x.O2_e.sd*percent)
+  x.O2_e.MC = reactive(rnorm(n(),x.O2_e(),x.O2_e.sd()))
+  # CO exposure from smoking (ppm):
+  x.CO_e.s = reactive(input$x.CO_e.s*ppm)
+  x.CO_e.s.sd = reactive(input$x.CO_e.s.sd*ppm)
+  x.CO_e.s.MC = reactive(rnorm(n(),x.CO_e.s(),x.CO_e.s.sd()))
+  # Number of Monte Carlo simulations
+  n = reactive(input$n)
   
-  PB.rsd = reactive(input$PB.sd/input$PB)
-  output$PB.rsd = renderText(PB.rsd())
-  z.rsd = reactive(input$z.sd/input$z)
-  output$z.rsd = renderText(z.rsd())
-  T.rsd = reactive(input$T.sd/input$T)
-  output$T.rsd = renderText(T.rsd())
-  t_e.rsd = reactive(input$t_e.sd/input$t_e)
-  output$t_e.rsd = renderText(t_e.rsd())
-  AL_e.rsd = reactive(input$AL_e.sd/input$AL_e)
-  output$AL_e.rsd = renderText(AL_e.rsd())
-  SS.rsd = reactive(input$SS.sd/input$SS)
-  output$SS.rsd = renderText(SS.rsd())
-  x.O2_e.rsd = reactive(input$x.O2_e.sd/input$x.O2_e)
-  output$x.O2_e.rsd = renderText(x.O2_e.rsd())
-  XCOHb.rsd = reactive(input$XCOHb.sd/input$XCOHb)
-  output$XCOHb.rsd = renderText(XCOHb.rsd())
-  Hb.rsd = reactive(input$Hb.sd/input$Hb)
-  output$Hb.rsd = renderText(Hb.rsd())
-  PB.rsd = reactive(input$PB.sd/input$PB)
-  output$PB.rsd = renderText(PB.rsd())
-  x.CO_e.s.rsd = reactive(input$x.CO_e.s.sd/input$x.CO_e.s)
-  output$x.CO_e.s.rsd = renderText(x.CO_e.s.rsd())
-  t_c.rsd = reactive(input$t_c.sd/input$t_c)
-  output$t_c.rsd = renderText(t_c.rsd())
-  AL_c.rsd = reactive(input$AL_c.sd/input$AL_c)
-  output$AL_c.rsd = renderText(AL_c.rsd())
-  x.O2_c.rsd = reactive(input$x.O2_c.sd/input$x.O2_c)
-  output$x.O2_c.rsd = renderText(x.O2_c.rsd())
-  x.CO_c.rsd = reactive(input$x.CO_c.sd/input$x.CO_c)
-  output$x.CO_c.rsd = renderText(x.CO_c.rsd())
-  t_t.rsd = reactive(input$t_t.sd/input$t_t)
-  output$t_t.rsd = renderText(t_t.rsd())
-  AL_t.rsd = reactive(input$AL_t.sd/input$AL_t)
-  output$AL_t.rsd = renderText(AL_t.rsd())
-  x.O2_t.rsd = reactive(input$x.O2_t.sd/input$x.O2_t)
-  output$x.O2_t.rsd = renderText(x.O2_t.rsd())
-  x.CO_t.rsd = reactive(input$x.CO_t.sd/input$x.CO_t)
-  output$x.CO_t.rsd = renderText(x.CO_t.rsd())
+  #========== Calculated Values ==========#
+  # Estimated blood volume of employee (liters)
+  Vb = reactive(Vb.m(W=w(),H=h())) #This needs to be modified to be gender specific
+  output$Vb = renderPrint(cat("Vb =",Vb()/liter,"liter"))
+  Vb.MC = reactive(Vb.m(W=w.MC(),H=h.MC())) #This needs to be modified to be gender specific
+  output$Vb.sd = renderPrint(cat(sd(Vb.MC())/liter,"liter"))
+  # Fraction of COHb in blood sample (%)
+  COHb.D = reactive(COHb(XCOHb=XCOHb(),Hb=Hb()))
+  output$COHb.D = renderPrint(cat("COHb.D =",COHb.D()/percent,"%"))
+  COHb.D.MC = reactive(COHb(XCOHb=XCOHb.MC(),Hb=Hb.MC()))
+  output$COHb.D.sd = renderPrint(cat(sd(COHb.D.MC())/percent,"%"))
+  # Fraction of COHb in blood prior to exposure (%)
+  XCOHb.A = reactive(XCOHb.0(SS=SS()))
+  output$XCOHb.A = renderPrint(cat("XCOHb.A =",XCOHb.A()/percent,"%"))
+  XCOHb.A.MC = reactive(XCOHb.0(SS=SS.MC()))
+  output$XCOHb.A.sd = renderPrint(cat(sd(XCOHb.A.MC())/percent,"%"))
+  # COHb in blood prior to exposure
+  COHb.A = reactive(Hf*Hb()*XCOHb.A())
+  output$COHb.A = renderPrint(cat("COHb.A =",COHb.A()/(gram/(100*mL)),"grams/100mL")) # I think I've made a mistake here in presenting the intermediate variables - maybe a units issue?
+  COHb.A.MC = reactive(Hf*Hb.MC()*XCOHb.A.MC())
+  output$COHb.A.sd = renderPrint(cat(sd(COHb.A.MC())/(gram/(100*mL)),"grams/100mL"))
+  #
+  VA_t = reactive(VA(AL=AL_t(),PB=PB()))
+  output$VA_t = renderPrint(cat("VA_t =",VA_t()/(liter/minute),"liter/minute"))
+  VA_t.MC = reactive(VA(AL=AL_t.MC(),PB=PB.MC()))
+  output$VA_t.sd = renderPrint(cat(sd(VA_t.MC())/(liter/minute),"liter/minute"))
+  #
+  DL_t = reactive(DL(AL=AL_t(),PB=PB(),x.O2=x.O2_t()))
+  output$DL_t = renderPrint(cat("DL_t =",DL_t()/(mL/minute/mmHg),"mL/minute/mmHg"))
+  DL_t.MC = reactive(DL(AL=AL_t.MC(),PB=PB.MC(),x.O2=x.O2_t.MC()))
+  output$DL_t.sd = renderPrint(cat(sd(DL_t.MC())/(mL/minute/mmHg),"mL/minute/mmHg"))
+  #
+  beta_t = reactive(beta(PB=PB(),DL=DL_t(),VA=VA_t()))
+  output$beta_t = renderPrint(cat("beta_t =",beta_t()/(mmHg/mL),"mmHg*second/mL"))
+  beta_t.MC = reactive(beta(PB=PB.MC(),DL=DL_t.MC(),VA=VA_t.MC()))
+  output$beta_t.sd = renderPrint(cat(sd(beta_t.MC())/(mmHg/mL),"mmHg*second/mL"))
+  #
+  PICO_t = reactive(PICO(PB=PB(),x.CO=x.CO_t()))
+  output$PICO_t = renderPrint(cat("PICO_t =",PICO_t()/mmHg,"mmHg"))
+  PICO_t.MC = reactive(PICO(PB=PB.MC(),x.CO=x.CO_t.MC()))
+  output$PICO_t.sd = renderPrint(cat(sd(PICO_t.MC())/mmHg,"mmHg"))
+  #
+  PCO2_t = reactive(PCO2(PB=PB(),x.CO=x.CO_t(),x.O2=x.O2_t()))
+  output$PCO2_t = renderPrint(cat("PCO2_t =",PCO2_t()/mmHg,"mmHg"))
+  PCO2_t.MC = reactive(PCO2(PB=PB.MC(),x.CO=x.CO_t.MC(),x.O2=x.O2_t.MC()))
+  output$PCO2_t.sd = renderPrint(cat(sd(PCO2_t.MC())/mmHg,"mmHg"))
+  #
+  COHb.C = reactive(findInitCOHb(t=t_t(),COHb.f=COHb.D(),Vb=Vb(),beta=beta_t(),PICO=PICO_t(),PCO2=PCO2_t(),Hb=Hb()))
+  output$COHb.C = renderPrint(cat("COHb.C =",COHb.C())) # I think this should have units.  I will have to check on this.
+  COHb.C.MC = reactive(findInitCOHb(t=t_t.MC(),COHb.f=COHb.D.MC(),Vb=Vb.MC(),beta=beta_t.MC(),PICO=PICO_t.MC(),PCO2=PCO2_t.MC(),Hb=Hb.MC()))
+  output$COHb.C.sd = renderPrint(cat(sd(COHb.C.MC()))) # I think this should have units.  I will have to check on this.
+  #
+  XCOHb.C = reactive(COHb.C()/Hf/Hb())
+  output$XCOHb.C = renderPrint(cat("XCOHb.C =",XCOHb.C()/percent,"%"))
+  XCOHb.C.MC = reactive(COHb.C.MC()/Hf/Hb.MC())
+  output$XCOHb.C.sd = renderPrint(cat(sd(XCOHb.C.MC())/percent,"%"))
+  #
+  VA_c = reactive(VA(AL=AL_c(),PB=PB()))
+  output$VA_c = renderPrint(cat("VA_c =",VA_c()/(liter/minute),"liter/minute"))
+  VA_c.MC = reactive(VA(AL=AL_c.MC(),PB=PB.MC()))
+  output$VA_c.sd = renderPrint(cat(sd(VA_c.MC())/(liter/minute),"liter/minute"))
+  #
+  DL_c = reactive(DL(AL=AL_c(),PB=PB(),x.O2=x.O2_c()))
+  output$DL_c = renderPrint(cat("DL_c =",DL_c()/(mL/minute/mmHg),"mL/minute/mmHg"))
+  DL_c.MC = reactive(DL(AL=AL_c.MC(),PB=PB.MC(),x.O2=x.O2_c.MC()))
+  output$DL_c.sd = renderPrint(cat(sd(DL_c.MC())/(mL/minute/mmHg),"mL/minute/mmHg"))
+  #
+  beta_c = reactive(beta(PB=PB(),DL=DL_c(),VA=VA_c()))
+  output$beta_c = renderPrint(cat("beta_c =",beta_c()/(mmHg/mL),"mmHg*second/mL"))
+  beta_c.MC = reactive(beta(PB=PB.MC(),DL=DL_c.MC(),VA=VA_c.MC()))
+  output$beta_c.sd = renderPrint(cat(sd(beta_c.MC())/(mmHg/mL),"mmHg*second/mL"))
+  #
+  PICO_c = reactive(PICO(PB=PB(),x.CO=x.CO_c()))
+  output$PICO_c = renderPrint(cat("PICO_c =",PICO_c()/mmHg,"mmHg"))
+  PICO_c.MC = reactive(PICO(PB=PB.MC(),x.CO=x.CO_c.MC()))
+  output$PICO_c.sd = renderPrint(cat(sd(PICO_c.MC())/mmHg,"mmHg"))
+  #
+  PCO2_c = reactive(PCO2(PB=PB(),x.CO=x.CO_c(),x.O2=x.O2_c()))
+  output$PCO2_c = renderPrint(cat("PCO2_c =",PCO2_c()/mmHg,"mmHg"))
+  PCO2_c.MC = reactive(PCO2(PB=PB.MC(),x.CO=x.CO_c.MC(),x.O2=x.O2_c.MC()))
+  output$PCO2_c.sd = renderPrint(cat(sd(PCO2_c.MC())/mmHg,"mmHg"))
+  #
+  COHb.B = reactive(findInitCOHb(t=t_c(),COHb.f=COHb.C(),Vb=Vb(),beta=beta_c(),PICO=PICO_c(),PCO2=PCO2_c(),Hb=Hb()))
+  output$COHb.B = renderPrint(cat("COHb.B =",COHb.B()))
+  COHb.B.MC = reactive(findInitCOHb(t=t_c.MC(),COHb.f=COHb.C.MC(),Vb=Vb.MC(),beta=beta_c.MC(),PICO=PICO_c.MC(),PCO2=PCO2_c.MC(),Hb=Hb.MC()))
+  output$COHb.B.sd = renderPrint(cat(sd(COHb.B.MC())))
+  #
+  XCOHb.B = reactive(COHb.B()/Hf/Hb())
+  output$XCOHb.B = renderPrint(cat("XCOHb.B =",XCOHb.B()/percent,"%"))
+  XCOHb.B.MC = reactive(COHb.B.MC()/Hf/Hb.MC())
+  output$XCOHb.B.sd = renderPrint(cat(sd(XCOHb.B.MC())/percent,"%"))
+  #
+  VA_e = reactive(VA(AL=AL_e(),PB=PB()))
+  output$VA_e = renderPrint(cat("VA_e =",VA_e()/(liter/minute),"liter/minute"))
+  VA_e.MC = reactive(VA(AL=AL_e.MC(),PB=PB.MC()))
+  output$VA_e.sd = renderPrint(cat(sd(VA_e.MC())/(liter/minute),"liter/minute"))
+  #
+  DL_e = reactive(DL(AL=AL_e(),PB=PB(),x.O2=x.O2_e()))
+  output$DL_e = renderPrint(cat("DL_e =",DL_e()/(mL/minute/mmHg),"mL/minute/mmHg"))
+  DL_e.MC = reactive(DL(AL=AL_e.MC(),PB=PB.MC(),x.O2=x.O2_e.MC()))
+  output$DL_e.sd = renderPrint(cat(sd(DL_e.MC())/(mL/minute/mmHg),"mL/minute/mmHg"))
+  #
+  beta_e = reactive(beta(PB=PB(),DL=DL_e(),VA=VA_e()))
+  output$beta_e = renderPrint(cat("beta_e =",beta_e()/(mmHg/mL),"mmHg*second/mL"))
+  beta_e.MC = reactive(beta(PB=PB.MC(),DL=DL_e.MC(),VA=VA_e()))
+  output$beta_e.sd = renderPrint(cat(sd(beta_e.MC())/(mmHg/mL),"mmHg*second/mL"))
+  #
+  PICO_e = reactive(PICO(PB=PB(),x.CO=x.CO_e()))
+  output$PICO_e = renderPrint(cat("PICO_e =",PICO_e()/mmHg,"mmHg"))
+  PICO_e.MC = reactive(PICO(PB=PB.MC(),x.CO=x.CO_e.MC()))
+  output$PICO_e.sd = renderPrint(cat(sd(PICO_e.MC())/mmHg,"mmHg"))
+  #
+  PCO2_e = reactive(PCO2(PB=PB(),x.CO=x.CO_e(),x.O2=x.O2_e()))
+  output$PCO2_e = renderPrint(cat("PCO2_e =",PCO2_e()/mmHg,"mmHg"))
+  PCO2_e.MC = reactive(PCO2(PB=PB.MC(),x.CO=x.CO_e.MC(),x.O2=x.O2_e.MC()))
+  output$PCO2_e.sd = renderPrint(cat(sd(PCO2_e.MC())/mmHg,"mmHg"))
+  #
+  x.CO_e = reactive(findMeanCO(t=t_e(),COHb.i=COHb.A(),COHb.f=COHb.B(),Vb=Vb(),beta=beta_e(),Hb=Hb(),PB=PB(),x.O2=x.O2_e()))
+  output$x.CO_e = renderPrint(cat("x.CO_e =",x.CO_e()/ppm,"ppm"))
+  x.CO_e.MC = reactive(findMeanCO(t=t_e.MC(),COHb.i=COHb.A.MC(),COHb.f=COHb.B.MC(),Vb=Vb.MC(),beta=beta_e.MC(),Hb=Hb.MC(),PB=PB.MC(),x.O2=x.O2_e.MC()))
+  output$x.CO_e.sd = renderPrint(cat(sd(x.CO_e.MC())/ppm,"ppm"))
+  #
+  x.CO_e.o = reactive(x.CO_e()-x.CO_e.s())
+  output$x.CO_e.o = renderPrint(cat("x.CO_e.o =",x.CO_e.o()/ppm,"ppm"))
+  x.CO_e.o.MC = reactive(x.CO_e.MC()-x.CO_e.s.MC())
+  output$x.CO_e.o.sd = renderPrint(cat(sd(x.CO_e.o.MC())/ppm,"ppm"))
+  # Averaging period
+  AveragingPeriod8h = reactive(ifelse(t_e() > 480*minute, t_e(), 480*minute))
+  AveragingPeriod8h.MC = reactive(ifelse(t_e() > 480*minute, t_e.MC(), 480*minute))
+  # 8-hour total weight average (TWA) exposure
+  TWA8Hours = reactive(x.CO_e.o()*t_e()/AveragingPeriod8h())
+  output$TWA8Hours = renderPrint(cat("TWA8Hours =",TWA8Hours()/ppm,"ppm"))
+  TWA8Hours.MC = reactive(x.CO_e.o.MC()*t_e.MC()/AveragingPeriod8h.MC())
+  output$TWA8Hours.sd = renderPrint(cat(sd(TWA8Hours.MC())/ppm,"ppm"))
+  # SAE for exposure
+  SAE.exposure = reactive({
+    if (input$doMonteCarlo) round(1.64485*sd(x.CO_e.o.MC())/mean(x.CO_e.o.MC())/percent,1)
+    else "?"
+  })
+  #SAE for 8-hour total weight average (TWA) exposure
+  SAE.8hTWA = reactive({
+    if (input$doMonteCarlo) round(1.64485*sd(TWA8Hours.MC())/mean(TWA8Hours.MC())/percent,1)
+    else "?"
+  })
+  #SAE.ppmCOminutes
+
+  #h.rsd = reactive(input$h.sd/input$h)
+  #output$h.rsd = renderText(h.rsd())
+  #w.rsd = reactive(input$w.sd/input$w)
+  #output$w.rsd = renderText(w.rsd())
+  #PB.rsd = reactive(input$PB.sd/input$PB)
+  #output$PB.rsd = renderText(PB.rsd())
+  #z.rsd = reactive(input$z.sd/input$z)
+  #output$z.rsd = renderText(z.rsd())
+  #T.rsd = reactive(input$T.sd/input$T)
+  #output$T.rsd = renderText(T.rsd())
+  #t_e.rsd = reactive(input$t_e.sd/input$t_e)
+  #output$t_e.rsd = renderText(t_e.rsd())
+  #AL_e.rsd = reactive(input$AL_e.sd/input$AL_e)
+  #output$AL_e.rsd = renderText(AL_e.rsd())
+  #SS.rsd = reactive(input$SS.sd/input$SS)
+  #output$SS.rsd = renderText(SS.rsd())
+  #x.O2_e.rsd = reactive(input$x.O2_e.sd/input$x.O2_e)
+  #output$x.O2_e.rsd = renderText(x.O2_e.rsd())
+  #XCOHb.rsd = reactive(input$XCOHb.sd/input$XCOHb)
+  #output$XCOHb.rsd = renderText(XCOHb.rsd())
+  #Hb.rsd = reactive(input$Hb.sd/input$Hb)
+  #output$Hb.rsd = renderText(Hb.rsd())
+  #PB.rsd = reactive(input$PB.sd/input$PB)
+  #output$PB.rsd = renderText(PB.rsd())
+  #x.CO_e.s.rsd = reactive(input$x.CO_e.s.sd/input$x.CO_e.s)
+  #output$x.CO_e.s.rsd = renderText(x.CO_e.s.rsd())
+  #t_c.rsd = reactive(input$t_c.sd/input$t_c)
+  #output$t_c.rsd = renderText(t_c.rsd())
+  #AL_c.rsd = reactive(input$AL_c.sd/input$AL_c)
+  #output$AL_c.rsd = renderText(AL_c.rsd())
+  #x.O2_c.rsd = reactive(input$x.O2_c.sd/input$x.O2_c)
+  #output$x.O2_c.rsd = renderText(x.O2_c.rsd())
+  #x.CO_c.rsd = reactive(input$x.CO_c.sd/input$x.CO_c)
+  #output$x.CO_c.rsd = renderText(x.CO_c.rsd())
+  #t_t.rsd = reactive(input$t_t.sd/input$t_t)
+  #output$t_t.rsd = renderText(t_t.rsd())
+  #AL_t.rsd = reactive(input$AL_t.sd/input$AL_t)
+  #output$AL_t.rsd = renderText(AL_t.rsd())
+  #x.O2_t.rsd = reactive(input$x.O2_t.sd/input$x.O2_t)
+  #output$x.O2_t.rsd = renderText(x.O2_t.rsd())
+  #x.CO_t.rsd = reactive(input$x.CO_t.sd/input$x.CO_t)
+  #output$x.CO_t.rsd = renderText(x.CO_t.rsd())
+  
+  output$abstract = renderPrint(
+    cat(
+      "Employee",input$name,"(calculation ",input$ID,
+      ") was subjected to a calculated mean carbon monoxide occupational exposure of",round(x.CO_e.o()/ppm,1),
+      "ppm (SAE =",SAE.exposure(),
+      "%) for a duration of",t_e()/minute,
+      "minutes. The carboxyhemoglobin in the employee's blood reached a calculated peak level of",round(XCOHb.B()/percent,1),
+      "% at the end of the exposure. The calculated 8-hour total weight average (TWA) exposure is",round(TWA8Hours()/ppm,1),
+      "ppm CO (SAE =",SAE.8hTWA(),
+      "%) which is",round(TWA8Hours()/OEL,2),
+      "times the",OelLabel,
+      "of",OEL/ppm,
+      "ppm."
+    )
+  )
   
   output$timePlot <- renderPlot({
     t.e = 0:t_e()
@@ -168,28 +319,35 @@ server <- function(input, output, session) {
     text(0,0.96*XCOHb.B()/percent,sprintf("Occupational Exposure = %.1f ppm", x.CO_e.o()/ppm),adj = c(0,0))
   })
   
-  output$abstract = renderPrint(cat("Employee",input$name,"(calculation ",input$ID,
-                                    ") was subjected to a calculated mean carbon monoxide occupational exposure of",round(x.CO_e.o()/ppm),
-                                    "ppm (SAE =",0,
-                                    ") for a duration of",t_e()/minute,
-                                    "minutes. The carboxyhemoglobin in the employee's blood reached a calculated peak level of",round(XCOHb.B()/percent,1),
-                                    "% at the end of the exposure. The calculated 8-hour total weight average (TWA) exposure is",round(TWA8Hours()/ppm,1),
-                                    "ppm CO (SAE =",0, #sprintf('%.2f',SAE8hTWA)
-                                    ") which is",round(TWA8Hours()/OEL,2),
-                                    "times the",OelLabel,
-                                    "of",OEL/ppm,
-                                    "ppm."))
-  
   output$downloadData <- downloadHandler(
     filename = function() {
       paste(input$ID, ".csv", sep = "")
     },
     content = function(file) {
-      value = c(NA,NA,NA,input$h,input$w,input$XCOHb,input$Hb,NA,input$PB,input$t_e,input$AL_e,input$SS,input$x.O2_e,input$x.CO_e.s,input$t_c,input$AL_c,input$x.O2_c,input$x.CO_c,input$t_t,input$AL_t,input$x.O2_t,input$x.CO_t)
-      uncertainty = c(NA,NA,NA,input$h.sd,input$w.sd,input$XCOHb.sd,input$Hb.sd,NA,input$PB.sd,input$t_e.sd,input$AL_e.sd,input$SS.sd,input$x.O2_e.sd,input$x.CO_e.s.sd,input$t_c.sd,input$AL_c.sd,input$x.O2_c.sd,input$x.CO_c.sd,input$t_t.sd,input$AL_t.sd,input$x.O2_t.sd,input$x.CO_t.sd)
-      units = c(input$name,input$gender,input$ID,"inch","pound","%","grams/100mL",input$PB_method,"mmHg","minutes","","","%","ppm","minutes","","%","ppm","minutes","","%","ppm")
-      df = data.frame(value, uncertainty, units)
-      row.names(df) = c("name","gender","ID","height","weight","COHb in blood","hemoglobin in blood","pressure method","atmospheric pressure","exposure duration","exposure activity level","smoker status","exposure oxygen level","CO exposure from smoking","clearance duration","clearance activity level","clearance oxygen level","clearance carbon monoxide level","oxygen therapy duration","oxygen therapy activity level","oxygen therapy oxygen level","oxygen therapy carbon monoxide level")
+      df <- data.frame(value=double(), uncertainty=double(), units=character())
+      df <- rbind(df, "name" = list(value=NA, uncertainty=NA, units=input$name), stringsAsFactors=FALSE)
+      df <- rbind(df, "gender" = list(value=NA, uncertainty=NA, units=input$gender), stringsAsFactors=FALSE)
+      df <- rbind(df, "ID" = list(value=NA, uncertainty=NA, units=input$ID), stringsAsFactors=FALSE)
+      df <- rbind(df, "height" = list(value=input$h, uncertainty=input$h.sd, units="inch"), stringsAsFactors=FALSE)
+      df <- rbind(df, "weight" = list(value=input$w, uncertainty=input$w.sd, units="pound"), stringsAsFactors=FALSE)
+      df <- rbind(df, "COHb in blood" = list(value=input$XCOHb, uncertainty=input$XCOHb.sd, units="%"), stringsAsFactors=FALSE)
+      df <- rbind(df, "hemoglobin in blood" = list(value=input$Hb, uncertainty=input$Hb.sd, units="grams/100mL"), stringsAsFactors=FALSE)
+      df <- rbind(df, "pressure method" = list(value=NA, uncertainty=NA, units=input$PB_method), stringsAsFactors=FALSE)
+      df <- rbind(df, "atmospheric pressure" = list(value=input$PB, uncertainty=input$PB.sd, units="mmHg"), stringsAsFactors=FALSE)
+      df <- rbind(df, "elevation" = list(value=input$z, uncertainty=input$z.sd, units="ft"), stringsAsFactors=FALSE)
+      df <- rbind(df, "exposure duration" = list(value=input$t_e, uncertainty=input$t_e.sd, units="minute"), stringsAsFactors=FALSE)
+      df <- rbind(df, "exposure activity level" = list(value=input$AL_e, uncertainty=input$AL_e.sd, units=""), stringsAsFactors=FALSE)
+      df <- rbind(df, "smoker status" = list(value=input$SS, uncertainty=input$SS.sd, units=""), stringsAsFactors=FALSE)
+      df <- rbind(df, "exposure oxygen level" = list(value=input$x.O2_e, uncertainty=input$x.O2_e.sd, units="%"), stringsAsFactors=FALSE)
+      df <- rbind(df, "CO exposure from smoking" = list(value=input$x.CO_e.s, uncertainty=input$x.CO_e.s.sd, units="ppm"), stringsAsFactors=FALSE)
+      df <- rbind(df, "clearance duration" = list(value=input$t_c, uncertainty=input$t_c.sd, units="minute"), stringsAsFactors=FALSE)
+      df <- rbind(df, "clearance activity level" = list(value=input$AL_c, uncertainty=input$AL_c.sd, units=""), stringsAsFactors=FALSE)
+      df <- rbind(df, "clearance oxygen level" = list(value=input$x.O2_c, uncertainty=input$x.O2_c.sd, units="%"), stringsAsFactors=FALSE)
+      df <- rbind(df, "clearance carbon monoxide level" = list(value=input$x.CO_c, uncertainty=input$x.CO_c.sd, units="ppm"), stringsAsFactors=FALSE)
+      df <- rbind(df, "oxygen therapy duration" = list(value=input$t_t, uncertainty=input$t_t.sd, units="minute"), stringsAsFactors=FALSE)
+      df <- rbind(df, "oxygen therapy activity level" = list(value=input$AL_t, uncertainty=input$AL_t.sd, units=""), stringsAsFactors=FALSE)
+      df <- rbind(df, "oxygen therapy oxygen level" = list(value=input$x.O2_t, uncertainty=input$x.O2_t.sd, units="%"), stringsAsFactors=FALSE)
+      df <- rbind(df, "oxygen therapy carbon monoxide level" = list(value=input$x.CO_t, uncertainty=input$x.CO_t.sd, units="ppm"), stringsAsFactors=FALSE)
       write.csv(df, file)
     }
   )
@@ -201,46 +359,48 @@ server <- function(input, output, session) {
         inFile <- input$CSVfile
         if (is.null(inFile))return(NULL)
         tmp = read.csv(inFile$datapath, header = TRUE, row.names = 1)
-        updateTextInput(session, inputId = "name", value = tmp["name","units"])
-        updateTextInput(session, inputId = "gender", value = tmp["gender","units"])
-        updateTextInput(session, inputId = "ID", value = tmp["ID","units"])
-        updateTextInput(session, inputId = "h", value = tmp["height","value"])
-        updateTextInput(session, inputId = "h.sd", value = tmp["height","uncertainty"])
-        updateTextInput(session, inputId = "w", value = tmp["weight","value"])
-        updateTextInput(session, inputId = "w.sd", value = tmp["weight","uncertainty"])
-        updateTextInput(session, inputId = "XCOHb", value = tmp["COHb in blood","value"])
-        updateTextInput(session, inputId = "XCOHb.sd", value = tmp["COHb in blood","uncertainty"])
-        updateTextInput(session, inputId = "Hb", value = tmp["hemoglobin in blood","value"])
-        updateTextInput(session, inputId = "Hb.sd", value = tmp["hemoglobin in blood","uncertainty"])
-        updateTextInput(session, inputId = "PB_method", value = tmp["pressure method","units"])
-        updateTextInput(session, inputId = "PB", value = tmp["atmospheric pressure","value"])
-        updateTextInput(session, inputId = "PB.sd", value = tmp["atmospheric pressure","uncertainty"])
-        updateTextInput(session, inputId = "t_e", value = tmp["exposure duration","value"])
-        updateTextInput(session, inputId = "t_e.sd", value = tmp["exposure duration","uncertainty"])
-        updateTextInput(session, inputId = "AL_e", value = tmp["exposure activity level","value"])
-        updateTextInput(session, inputId = "AL_e.sd", value = tmp["exposure activity level","uncertainty"])
-        updateTextInput(session, inputId = "SS", value = tmp["smoker status","value"])
-        updateTextInput(session, inputId = "SS.sd", value = tmp["smoker status","uncertainty"])
-        updateTextInput(session, inputId = "x.O2_e", value = tmp["exposure oxygen level","value"])
-        updateTextInput(session, inputId = "x.O2_e.sd", value = tmp["exposure oxygen level","uncertainty"])
-        updateTextInput(session, inputId = "x.CO_e.s", value = tmp["CO exposure from smoking","value"])
-        updateTextInput(session, inputId = "x.CO_e.s.sd", value = tmp["CO exposure from smoking","uncertainty"])
-        updateTextInput(session, inputId = "t_c", value = tmp["clearance duration","value"])
-        updateTextInput(session, inputId = "t_c.sd", value = tmp["clearance duration","uncertainty"])
-        updateTextInput(session, inputId = "AL_c", value = tmp["clearance activity level","value"])
-        updateTextInput(session, inputId = "AL_c.sd", value = tmp["clearance activity level","uncertainty"])
-        updateTextInput(session, inputId = "x.O2_c", value = tmp["clearance oxygen level","value"])
-        updateTextInput(session, inputId = "x.O2_c.sd", value = tmp["clearance oxygen level","uncertainty"])
-        updateTextInput(session, inputId = "x.CO_c", value = tmp["clearance carbon monoxide level","value"])
-        updateTextInput(session, inputId = "x.CO_c.sd", value = tmp["clearance carbon monoxide level","uncertainty"])
-        updateTextInput(session, inputId = "t_t", value = tmp["oxygen therapy duration","value"])
-        updateTextInput(session, inputId = "t_t.sd", value = tmp["oxygen therapy duration","uncertainty"])
-        updateTextInput(session, inputId = "AL_t", value = tmp["oxygen therapy activity level","value"])
-        updateTextInput(session, inputId = "AL_t.sd", value = tmp["oxygen therapy activity level","uncertainty"])
-        updateTextInput(session, inputId = "x.O2_t", value = tmp["oxygen therapy oxygen level","value"])
-        updateTextInput(session, inputId = "x.O2_t.sd", value = tmp["oxygen therapy oxygen level","uncertainty"])
-        updateTextInput(session, inputId = "x.CO_t", value = tmp["oxygen therapy carbon monoxide level","value"])
-        updateTextInput(session, inputId = "x.CO_t.sd", value = tmp["oxygen therapy carbon monoxide level","uncertainty"])
+        if ('name' %in% row.names(tmp)) updateTextInput(session, inputId = "name", value = tmp["name","units"])
+        if ('gender' %in% row.names(tmp)) updateTextInput(session, inputId = "gender", value = tmp["gender","units"])
+        if ('ID' %in% row.names(tmp)) updateTextInput(session, inputId = "ID", value = tmp["ID","units"])
+        if ('height' %in% row.names(tmp)) updateTextInput(session, inputId = "h", value = tmp["height","value"])
+        if ('height' %in% row.names(tmp)) updateTextInput(session, inputId = "h.sd", value = tmp["height","uncertainty"])
+        if ('weight' %in% row.names(tmp)) updateTextInput(session, inputId = "w", value = tmp["weight","value"])
+        if ('weight' %in% row.names(tmp)) updateTextInput(session, inputId = "w.sd", value = tmp["weight","uncertainty"])
+        if ('COHb in blood' %in% row.names(tmp)) updateTextInput(session, inputId = "XCOHb", value = tmp["COHb in blood","value"])
+        if ('COHb in blood' %in% row.names(tmp)) updateTextInput(session, inputId = "XCOHb.sd", value = tmp["COHb in blood","uncertainty"])
+        if ('hemoglobin in blood' %in% row.names(tmp)) updateTextInput(session, inputId = "Hb", value = tmp["hemoglobin in blood","value"])
+        if ('hemoglobin in blood' %in% row.names(tmp)) updateTextInput(session, inputId = "Hb.sd", value = tmp["hemoglobin in blood","uncertainty"])
+        if ('pressure method' %in% row.names(tmp)) updateTextInput(session, inputId = "PB_method", value = tmp["pressure method","units"])
+        if ('atmospheric pressure' %in% row.names(tmp)) updateTextInput(session, inputId = "PB", value = tmp["atmospheric pressure","value"])
+        if ('atmospheric pressure' %in% row.names(tmp)) updateTextInput(session, inputId = "PB.sd", value = tmp["atmospheric pressure","uncertainty"])
+        if ('elevation' %in% row.names(tmp)) updateTextInput(session, inputId = "z", value = tmp["elevation","value"])
+        if ('elevation' %in% row.names(tmp)) updateTextInput(session, inputId = "z.sd", value = tmp["elevation","uncertainty"])
+        if ('exposure duration' %in% row.names(tmp)) updateTextInput(session, inputId = "t_e", value = tmp["exposure duration","value"])
+        if ('exposure duration' %in% row.names(tmp)) updateTextInput(session, inputId = "t_e.sd", value = tmp["exposure duration","uncertainty"])
+        if ('exposure activity level' %in% row.names(tmp)) updateTextInput(session, inputId = "AL_e", value = tmp["exposure activity level","value"])
+        if ('exposure activity level' %in% row.names(tmp)) updateTextInput(session, inputId = "AL_e.sd", value = tmp["exposure activity level","uncertainty"])
+        if ('smoker status' %in% row.names(tmp)) updateTextInput(session, inputId = "SS", value = tmp["smoker status","value"])
+        if ('smoker status' %in% row.names(tmp)) updateTextInput(session, inputId = "SS.sd", value = tmp["smoker status","uncertainty"])
+        if ('exposure oxygen level' %in% row.names(tmp)) updateTextInput(session, inputId = "x.O2_e", value = tmp["exposure oxygen level","value"])
+        if ('exposure oxygen level' %in% row.names(tmp)) updateTextInput(session, inputId = "x.O2_e.sd", value = tmp["exposure oxygen level","uncertainty"])
+        if ('CO exposure from smoking' %in% row.names(tmp)) updateTextInput(session, inputId = "x.CO_e.s", value = tmp["CO exposure from smoking","value"])
+        if ('CO exposure from smoking' %in% row.names(tmp)) updateTextInput(session, inputId = "x.CO_e.s.sd", value = tmp["CO exposure from smoking","uncertainty"])
+        if ('clearance duration' %in% row.names(tmp)) updateTextInput(session, inputId = "t_c", value = tmp["clearance duration","value"])
+        if ('clearance duration' %in% row.names(tmp)) updateTextInput(session, inputId = "t_c.sd", value = tmp["clearance duration","uncertainty"])
+        if ('clearance activity level' %in% row.names(tmp)) updateTextInput(session, inputId = "AL_c", value = tmp["clearance activity level","value"])
+        if ('clearance activity level' %in% row.names(tmp)) updateTextInput(session, inputId = "AL_c.sd", value = tmp["clearance activity level","uncertainty"])
+        if ('clearance oxygen level' %in% row.names(tmp)) updateTextInput(session, inputId = "x.O2_c", value = tmp["clearance oxygen level","value"])
+        if ('clearance oxygen level' %in% row.names(tmp)) updateTextInput(session, inputId = "x.O2_c.sd", value = tmp["clearance oxygen level","uncertainty"])
+        if ('clearance carbon monoxide level' %in% row.names(tmp)) updateTextInput(session, inputId = "x.CO_c", value = tmp["clearance carbon monoxide level","value"])
+        if ('clearance carbon monoxide level' %in% row.names(tmp)) updateTextInput(session, inputId = "x.CO_c.sd", value = tmp["clearance carbon monoxide level","uncertainty"])
+        if ('oxygen therapy duration' %in% row.names(tmp)) updateTextInput(session, inputId = "t_t", value = tmp["oxygen therapy duration","value"])
+        if ('oxygen therapy duration' %in% row.names(tmp)) updateTextInput(session, inputId = "t_t.sd", value = tmp["oxygen therapy duration","uncertainty"])
+        if ('oxygen therapy activity level' %in% row.names(tmp)) updateTextInput(session, inputId = "AL_t", value = tmp["oxygen therapy activity level","value"])
+        if ('oxygen therapy activity level' %in% row.names(tmp)) updateTextInput(session, inputId = "AL_t.sd", value = tmp["oxygen therapy activity level","uncertainty"])
+        if ('oxygen therapy oxygen level' %in% row.names(tmp)) updateTextInput(session, inputId = "x.O2_t", value = tmp["oxygen therapy oxygen level","value"])
+        if ('oxygen therapy oxygen level' %in% row.names(tmp)) updateTextInput(session, inputId = "x.O2_t.sd", value = tmp["oxygen therapy oxygen level","uncertainty"])
+        if ('oxygen therapy carbon monoxide level' %in% row.names(tmp)) updateTextInput(session, inputId = "x.CO_t", value = tmp["oxygen therapy carbon monoxide level","value"])
+        if ('oxygen therapy carbon monoxide level' %in% row.names(tmp)) updateTextInput(session, inputId = "x.CO_t.sd", value = tmp["oxygen therapy carbon monoxide level","uncertainty"])
         #tmp
       },
       error = function(e) {stop(safeError(e))}

@@ -34,6 +34,12 @@ AL <- function(x) AL.des[round(x+1)]
 AL.dat = c(0, 1, 2, 3, 4)
 DL.dat = c(20, 25, 30, 40, 50)*mL/minute/mmHg
 DL.tab <- function(AL) approx(AL.dat,DL.dat,AL)$y
+DL.tab <- function(AL) {
+  AL = ifelse(AL<0, 0, AL)
+  AL = ifelse(AL>4, 4, AL)
+  approx(AL.dat,DL.dat,AL)$y
+}
+
 DL.1 <- function(AL,PB,x.O2) DL.tab(AL) / (1 + 0.0031/mmHg * (x.O2 * (PB - PH2O) - 150*mmHg))
 DL.2 <- function(AL,PB,x.O2) DL.tab(AL) / (1 + (0.0031/mmHg + (1.27624E-05/mmHg^2) * (x.O2 * (PB - PH2O) - 150*mmHg)) * (x.O2 * (PB - PH2O) - 150*mmHg))
 DL <- function(AL,PB,x.O2) {
@@ -42,9 +48,18 @@ DL <- function(AL,PB,x.O2) {
 DL <- function(AL,PB,x.O2) ifelse(x.O2 > 0.21, DL.2(AL,PB,x.O2), DL.1(AL,PB,x.O2))
 VA.dat = c(6, 12, 18, 24, 30)*liter/minute
 VA <- function(AL,PB) approx(AL.dat,VA.dat,AL)$y*(PB-PH2O)/(760*mmHg)*(273.15/310.15)
+VA <- function(AL,PB) {
+  AL = ifelse(AL<0, 0, AL)
+  AL = ifelse(AL>4, 4, AL)
+  approx(AL.dat,VA.dat,AL)$y*(PB-PH2O)/(760*mmHg)*(273.15/310.15)
+}
 SS.dat = c(0, 1, 2, 3, 4)
 XCOHb.dat = c(0.0075, 0.02, 0.05, 0.1, 0.2)
-XCOHb.0 <- function(SS) approx(SS.dat,XCOHb.dat,SS)$y
+XCOHb.0 <- function(SS) {
+  SS = ifelse(SS<0, 0, SS)
+  SS = ifelse(SS>4, 4, SS)
+  approx(SS.dat,XCOHb.dat,SS)$y
+}
 
 # constitutive relations
 Vb.m <- function(H,W) (366.9*H^3 + 32.19*W + 604)*mL
