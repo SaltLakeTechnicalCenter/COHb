@@ -5,14 +5,20 @@ ui <- fluidPage(
   plotOutput("timePlot"),
   tabsetPanel(
     tabPanel("Blood",
-             fluidRow(column(4,textInput("ID", label = "Sample Number:", value = "#"))),
              fluidRow(
-               column(4,numericInput("XCOHb", label = "COHb in blood sample (%):", value = 18.2)),
-               column(4,numericInput("XCOHb.sd", label = "Standard Deviation (%):", value = 0))
+               column(4,textInput("ID", label = "Sample Number:", value = "#")),
+               column(4,selectInput("COHb_method", label = "COHb known from:", c("blood","SpCO","breath")))
+               ),
+             fluidRow(
+               column(4,numericInput("XCOHb", label = "COHb in blood (%):", value = 18.2)),
+               column(4,
+                      conditionalPanel(condition="input.COHb_method!='breath'","Standard Deviation:",verbatimTextOutput("XCOHb.sd")),
+                      conditionalPanel(condition="input.COHb_method=='breath'",numericInput("XCOHb.sd", label = "Standard Deviation (%):", value = 0))
+                      )
                #conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("XCOHb.rsd")))
              ),
              fluidRow(
-               column(4,numericInput("Hb", label = "Hemoglobin in blood sample (grams/100mL):", value = 19.3)),
+               column(4,numericInput("Hb", label = "Hemoglobin in blood (grams/100mL):", value = 19.3)),
                column(4,numericInput("Hb.sd", label = "Standard Deviation (grams/100mL):", value = 0))
                #conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("Hb.rsd")))
              ),
