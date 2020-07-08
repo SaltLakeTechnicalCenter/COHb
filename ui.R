@@ -107,10 +107,12 @@ ui <- fluidPage(
                column(4,numericInput("AL_e.sd", label = "Standard Deviation:", value = 0))
                #conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("AL_e.rsd")))
              ),
-             fluidRow(
-               column(4,numericInput("x.O2_e", label = "Oxygen level (% oxygen):", value = 21)),
-               column(4,numericInput("x.O2_e.sd", label = "Standard Deviation (% oxygen):", value = 0))
-               #conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("x.O2_e.rsd")))
+             conditionalPanel("input.advanced",
+                              fluidRow(
+                                column(4,numericInput("x.O2_e", label = "Oxygen level (% oxygen):", value = 21)),
+                                column(4,numericInput("x.O2_e.sd", label = "Standard Deviation (% oxygen):", value = 0))
+                                #conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("x.O2_e.rsd")))
+                              )
              ),
              fluidRow(
                column(4,numericInput("x.CO_e.s", label = "CO exposure from smoking (ppm):", value = 0)),
@@ -148,9 +150,11 @@ ui <- fluidPage(
                #conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("AL_c.rsd")))
              ),
              fluidRow(
-               column(4,numericInput("x.O2_c", label = "Oxygen level (% oxygen):", value = 21)),
-               column(4,numericInput("x.O2_c.sd", label = "Standard Deviation (% oxygen):", value = 0))
-               #conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("x.O2_c.rsd")))
+               conditionalPanel("input.advanced",
+                                column(4,numericInput("x.O2_c", label = "Oxygen level (% oxygen):", value = 21)),
+                                column(4,numericInput("x.O2_c.sd", label = "Standard Deviation (% oxygen):", value = 0))
+                                #conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("x.O2_c.rsd")))
+               )
              ),
              fluidRow(
                column(4,numericInput("x.CO_c", label = "Carbon Monoxide Level (ppm):", value = 2)),
@@ -217,6 +221,7 @@ ui <- fluidPage(
     ),
     tabPanel("Parameters",
              fluidRow(column(4,numericInput("deltaT", label = "Runge–Kutta time step (seconds):", value = 60))),
+             checkboxInput("advanced", "Show advanced features", FALSE),
              checkboxInput("intermediate", "Show intermediate values", FALSE),
              checkboxInput("doMonteCarlo", "Perform Monte Carlo simulations", FALSE),
              conditionalPanel("input.doMonteCarlo",fluidRow(column(4,numericInput("n", label = "Number of Monte Carlo simulations:", value = 10)))),
