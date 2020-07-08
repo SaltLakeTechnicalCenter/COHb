@@ -6,20 +6,20 @@ ui <- fluidPage(
   tabsetPanel(
     tabPanel("Blood",
              fluidRow(column(4,textInput("ID", label = "Sample Number:", value = "#"))),
-             fluidRow(column(4,selectInput("COHb_method", label = "COHb known from:", c("blood","SpCO","breath")))),
+             fluidRow(column(4,selectInput("COHb_method", label = "COHb known from:", c("SpCO","blood","breath")))),
              fluidRow(
-               column(4,numericInput("XCOHb", label = "COHb in blood (%):", value = 18.2)),
+               column(4,numericInput("XCOHb", label = "COHb in blood (%):", value = 18.4)),
                column(4,
                       conditionalPanel(condition="input.COHb_method!='breath'","Standard Deviation:",verbatimTextOutput("XCOHb.sd")),
                       conditionalPanel(condition="input.COHb_method=='breath'",numericInput("XCOHb.sd", label = "Standard Deviation (%):", value = 0))
                       )
                #conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("XCOHb.rsd")))
              ),
-             fluidRow(column(4,selectInput("Hb_method", label = "Hb known from:", c("blood","gender")))),
+             fluidRow(column(4,selectInput("Hb_method", label = "Hb known from:", c("gender","blood")))),
              fluidRow(
                column(4,
                       conditionalPanel(condition="input.Hb_method!='blood'","Hemoglobin in blood:",verbatimTextOutput("Hb")),
-                      conditionalPanel(condition="input.Hb_method=='blood'",numericInput("Hb", label = "Hemoglobin in blood (grams/100mL):", value = 19.3))
+                      conditionalPanel(condition="input.Hb_method=='blood'",numericInput("Hb", label = "Hemoglobin in blood (grams/100mL):", value = 15.8))
                       ),
                column(4,
                       conditionalPanel(condition="input.Hb_method!='blood'","Standard Deviation:",verbatimTextOutput("Hb.sd")),
@@ -37,12 +37,12 @@ ui <- fluidPage(
              fluidRow(column(4,textInput("name", label = "Employee Name:"))),
              fluidRow(column(4,selectInput("gender", label = "Gender", c("male","female")))),
              fluidRow(
-               column(4,numericInput("h", label = "Height (inches):", value = 73)),
+               column(4,numericInput("h", label = "Height (inches):", value = 67)),
                column(4,numericInput("h.sd", label = "Standard Deviation (inches):", value = 0))
                #conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("h.rsd")))
              ),
              fluidRow(
-               column(4,numericInput("w", label = "Weight (pounds):", value = 264)),
+               column(4,numericInput("w", label = "Weight (pounds):", value = 166)),
                column(4,numericInput("w.sd", label = "Standard Deviation (pounds):", value = 0))
                #conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("w.rsd")))
              ),
@@ -80,7 +80,7 @@ ui <- fluidPage(
              ),
              conditionalPanel(condition="input.PB_method=='pressure'",
                               fluidRow(
-                                column(4,numericInput("PB", label = "Atmospheric Pressure (mmHg):", value = 760)),
+                                column(4,numericInput("PB", label = "Atmospheric Pressure (mmHg):", value = 740)),
                                 column(4,numericInput("PB.sd", label = "Standard Deviation (mmHg):", value = 0))
                                 #conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("PB.rsd")))
                               )
@@ -98,12 +98,12 @@ ui <- fluidPage(
     ),
     tabPanel("Exposure",
              fluidRow(
-               column(4,numericInput("t_e", label = "Duration (minutes):", value = 160)),
+               column(4,numericInput("t_e", label = "Duration (minutes):", value = 350)),
                column(4,numericInput("t_e.sd", label = "Standard Deviation (minutes):", value = 0))
                #conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("t_e.rsd")))
              ),
              fluidRow(
-               column(4,numericInput("AL_e", label = "Activity Level:", value = 1.5)),
+               column(4,numericInput("AL_e", label = "Activity Level:", value = 1)),
                column(4,numericInput("AL_e.sd", label = "Standard Deviation:", value = 0))
                #conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("AL_e.rsd")))
              ),
@@ -113,7 +113,7 @@ ui <- fluidPage(
                #conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("x.O2_e.rsd")))
              ),
              fluidRow(
-               column(4,numericInput("x.CO_e.s", label = "CO exposure from smoking (ppm):", value = 12)),
+               column(4,numericInput("x.CO_e.s", label = "CO exposure from smoking (ppm):", value = 0)),
                column(4,numericInput("x.CO_e.s.sd", label = "Standard Deviation (ppm):", value = 0))
                #conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("x.CO_e.s.rsd")))
              ),
@@ -138,7 +138,7 @@ ui <- fluidPage(
     ),
     tabPanel("Clearance",
              fluidRow(
-               column(4,numericInput("t_c", label = "Duration (minutes):", value = 70)),
+               column(4,numericInput("t_c", label = "Duration (minutes):", value = 160)),
                column(4,numericInput("t_c.sd", label = "Standard Deviation (minutes):", value = 0))
                #conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("t_c.rsd")))
              ),
@@ -153,7 +153,7 @@ ui <- fluidPage(
                #conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("x.O2_c.rsd")))
              ),
              fluidRow(
-               column(4,numericInput("x.CO_c", label = "Carbon Monoxide Level (ppm):", value = 2.847)),
+               column(4,numericInput("x.CO_c", label = "Carbon Monoxide Level (ppm):", value = 2)),
                column(4,numericInput("x.CO_c.sd", label = "Standard Deviation (ppm):", value = 0))
                #conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("x.CO_c.rsd")))
              ),
@@ -176,7 +176,7 @@ ui <- fluidPage(
     ),
     tabPanel("Oxygen Therapy",
              fluidRow(
-               column(4,numericInput("t_t", label = "Duration (minutes):", value = 8)),
+               column(4,numericInput("t_t", label = "Duration (minutes):", value = 0)),
                column(4,numericInput("t_t.sd", label = "Standard Deviation (minutes):", value = 0))
                #conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("t_t.rsd")))
              ),
@@ -186,13 +186,13 @@ ui <- fluidPage(
                #conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("AL_t.rsd")))
              ),
              fluidRow(
-               column(4,numericInput("x.O2_t", label = "Oxygen level (% oxygen):", value = 50)),
+               column(4,numericInput("x.O2_t", label = "Oxygen level (% oxygen):", value = 100)),
                column(4,numericInput("x.O2_t.sd", label = "Standard Deviation (% oxygen):", value = 0))
                #conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("x.O2_t.rsd")))
              ),
              fluidRow(
                column(4,numericInput("x.CO_t", label = "Carbon Monoxide Level (ppm):", value = 0)),
-               column(4,numericInput("x.CO_t.sd", label = "Standard Deviation (ppm):", value = 0.11))
+               column(4,numericInput("x.CO_t.sd", label = "Standard Deviation (ppm):", value = 0))
                #conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("x.CO_t.rsd")))
              ),
              conditionalPanel("input.intermediate",
