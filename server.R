@@ -20,7 +20,6 @@ server <- function(input, output, session) {
     else if (input$Hb_method=='gender') {if (input$gender=='male') 15.8*gram/(100*mL) else 14.2*gram/(100*mL)}
   )
   output$Hb = renderPrint(cat("Hb =",Hb()/(gram/(100*mL)),"grams/100mL"))
-  #Hb.sd = reactive(input$Hb.sd*gram/(100*mL))
   Hb.sd = reactive(
     if (input$Hb_method=='blood') input$Hb.sd*gram/(100*mL)
     else if (input$Hb_method=='gender') {if (input$gender=='male') 1.1735*gram/(100*mL) else 1.0204*gram/(100*mL)}
@@ -112,9 +111,12 @@ server <- function(input, output, session) {
   
   #========== Calculated Values ==========#
   # Estimated blood volume of employee (liters)
-  Vb = reactive(Vb.m(W=w(),H=h())) #This needs to be modified to be gender specific
+  Vb = reactive(
+    if (input$gender=='male') Vb.m(W=w(),H=h())
+    else if (input$gender=='female') Vb.f(W=w(),H=h())
+  )
   output$Vb = renderPrint(cat("Vb =",Vb()/liter,"liter"))
-  Vb.MC = reactive(Vb.m(W=w.MC(),H=h.MC())) #This needs to be modified to be gender specific
+  Vb.MC = reactive(Vb.m(W=w.MC(),H=h.MC()))
   output$Vb.sd = renderPrint(cat(sd(Vb.MC())/liter,"liter"))
   # Fraction of COHb in blood sample (%)
   COHb.D = reactive(COHb(XCOHb=XCOHb(),Hb=Hb()))

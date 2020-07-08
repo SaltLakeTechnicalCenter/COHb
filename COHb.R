@@ -62,7 +62,8 @@ XCOHb.0 <- function(SS) {
 }
 
 # constitutive relations
-Vb.m <- function(H,W) (366.9*H^3 + 32.19*W + 604)*mL
+Vb.m <- function(H,W) (366.9*H^3 + 32.19*W + 604.1)*mL
+Vb.f <- function(H,W) (356.1*H^3 + 33.08*W + 183.3)*mL
 PICO <- function(PB,x.CO) x.CO*(PB-PH2O)
 PCO2 <- function(PB,x.CO,x.O2) x.O2*(PB-PH2O-PICO(PB=PB,x.CO=x.CO))-PA
 beta <- function(PB,DL,VA) 1/DL + (PB-PH2O)/VA
