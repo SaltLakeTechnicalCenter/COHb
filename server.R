@@ -15,9 +15,17 @@ server <- function(input, output, session) {
   output$XCOHb.sd = renderPrint(cat("XCOHb.sd =",XCOHb.sd()/percent,"%"))
   XCOHb.MC = reactive(rnorm(n(),XCOHb(),XCOHb.sd()))
   # Hemoglobin in blood sample (grams/100mL)
-  Hb = reactive(input$Hb*gram/(100*mL))
+  Hb = reactive(
+    if (input$Hb_method=='blood') input$Hb*gram/(100*mL)
+    else if (input$Hb_method=='gender') {if (input$gender=='male') 15.8*gram/(100*mL) else 14.2*gram/(100*mL)}
+  )
+  output$Hb = renderPrint(cat("Hb =",Hb()/(gram/(100*mL)),"grams/100mL"))
   #Hb.sd = reactive(input$Hb.sd*gram/(100*mL))
-  Hb.sd = reactive(input$Hb.sd*gram/(100*mL))
+  Hb.sd = reactive(
+    if (input$Hb_method=='blood') input$Hb.sd*gram/(100*mL)
+    else if (input$Hb_method=='gender') {if (input$gender=='male') 1.1735*gram/(100*mL) else 1.0204*gram/(100*mL)}
+  )
+  output$Hb.sd = renderPrint(cat("Hb.sd =",Hb.sd()/(gram/(100*mL)),"grams/100mL"))
   Hb.MC = reactive(rnorm(n(),Hb(),Hb.sd()))
   # Weight (pounds)
   w = reactive(input$w*pound)
@@ -339,6 +347,7 @@ server <- function(input, output, session) {
       df <- rbind(df, "COHb in blood" = list(value=input$XCOHb, uncertainty=input$XCOHb.sd, units="%"), stringsAsFactors=FALSE)
       df <- rbind(df, "COHb method" = list(value=NA, uncertainty=NA, units=input$COHb_method), stringsAsFactors=FALSE)
       df <- rbind(df, "hemoglobin in blood" = list(value=input$Hb, uncertainty=input$Hb.sd, units="grams/100mL"), stringsAsFactors=FALSE)
+      df <- rbind(df, "Hb method" = list(value=NA, uncertainty=NA, units=input$Hb_method), stringsAsFactors=FALSE)
       df <- rbind(df, "pressure method" = list(value=NA, uncertainty=NA, units=input$PB_method), stringsAsFactors=FALSE)
       df <- rbind(df, "atmospheric pressure" = list(value=input$PB, uncertainty=input$PB.sd, units="mmHg"), stringsAsFactors=FALSE)
       df <- rbind(df, "elevation" = list(value=input$z, uncertainty=input$z.sd, units="ft"), stringsAsFactors=FALSE)
@@ -378,6 +387,7 @@ server <- function(input, output, session) {
         if ('COHb method' %in% row.names(tmp)) updateTextInput(session, inputId = "COHb_method", value = tmp["COHb method","units"])
         if ('hemoglobin in blood' %in% row.names(tmp)) updateTextInput(session, inputId = "Hb", value = tmp["hemoglobin in blood","value"])
         if ('hemoglobin in blood' %in% row.names(tmp)) updateTextInput(session, inputId = "Hb.sd", value = tmp["hemoglobin in blood","uncertainty"])
+        if ('Hb method' %in% row.names(tmp)) updateTextInput(session, inputId = "Hb_method", value = tmp["Hb method","units"])
         if ('pressure method' %in% row.names(tmp)) updateTextInput(session, inputId = "PB_method", value = tmp["pressure method","units"])
         if ('atmospheric pressure' %in% row.names(tmp)) updateTextInput(session, inputId = "PB", value = tmp["atmospheric pressure","value"])
         if ('atmospheric pressure' %in% row.names(tmp)) updateTextInput(session, inputId = "PB.sd", value = tmp["atmospheric pressure","uncertainty"])
@@ -520,6 +530,7 @@ server <- function(input, output, session) {
           updateTextInput(session, inputId = "gender", value = paste("male"))
           updateSelectInput(session, inputId = "PB_method", selected = "pressure")
           updateSelectInput(session, inputId = "COHb_method", selected = "breath")
+          updateSelectInput(session, inputId = "Hb_method", selected = "blood")
           close(con)
       },
       error = function(e) {stop(safeError(e))}

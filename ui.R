@@ -5,10 +5,8 @@ ui <- fluidPage(
   plotOutput("timePlot"),
   tabsetPanel(
     tabPanel("Blood",
-             fluidRow(
-               column(4,textInput("ID", label = "Sample Number:", value = "#")),
-               column(4,selectInput("COHb_method", label = "COHb known from:", c("blood","SpCO","breath")))
-               ),
+             fluidRow(column(4,textInput("ID", label = "Sample Number:", value = "#"))),
+             fluidRow(column(4,selectInput("COHb_method", label = "COHb known from:", c("blood","SpCO","breath")))),
              fluidRow(
                column(4,numericInput("XCOHb", label = "COHb in blood (%):", value = 18.2)),
                column(4,
@@ -17,10 +15,16 @@ ui <- fluidPage(
                       )
                #conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("XCOHb.rsd")))
              ),
+             fluidRow(column(4,selectInput("Hb_method", label = "Hb known from:", c("blood","gender")))),
              fluidRow(
-               column(4,numericInput("Hb", label = "Hemoglobin in blood (grams/100mL):", value = 19.3)),
-               column(4,numericInput("Hb.sd", label = "Standard Deviation (grams/100mL):", value = 0))
-               #conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("Hb.rsd")))
+               column(4,
+                      conditionalPanel(condition="input.Hb_method!='blood'","Hemoglobin in blood:",verbatimTextOutput("Hb")),
+                      conditionalPanel(condition="input.Hb_method=='blood'",numericInput("Hb", label = "Hemoglobin in blood (grams/100mL):", value = 19.3))
+                      ),
+               column(4,
+                      conditionalPanel(condition="input.Hb_method!='blood'","Standard Deviation:",verbatimTextOutput("Hb.sd")),
+                      conditionalPanel(condition="input.Hb_method=='blood'",numericInput("Hb.sd", label = "Standard Deviation (grams/100mL):", value = 0))
+                      )
              ),
              conditionalPanel("input.intermediate",
                               fluidRow(
