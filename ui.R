@@ -149,17 +149,17 @@ ui <- fluidPage(
                column(4,numericInput("AL_c.sd", label = "Standard Deviation:", value = 0))
                #conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("AL_c.rsd")))
              ),
-             fluidRow(
-               conditionalPanel("input.advanced",
+             conditionalPanel("input.advanced",
+                              fluidRow(
                                 column(4,numericInput("x.O2_c", label = "Oxygen level (% oxygen):", value = 21)),
                                 column(4,numericInput("x.O2_c.sd", label = "Standard Deviation (% oxygen):", value = 0))
                                 #conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("x.O2_c.rsd")))
-               )
-             ),
-             fluidRow(
-               column(4,numericInput("x.CO_c", label = "Carbon Monoxide Level (ppm):", value = 2)),
-               column(4,numericInput("x.CO_c.sd", label = "Standard Deviation (ppm):", value = 0))
-               #conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("x.CO_c.rsd")))
+                              ),
+                              fluidRow(
+                                column(4,numericInput("x.CO_c", label = "Carbon Monoxide Level (ppm):", value = 2)),
+                                column(4,numericInput("x.CO_c.sd", label = "Standard Deviation (ppm):", value = 0))
+                                #conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("x.CO_c.rsd")))
+                              )
              ),
              conditionalPanel("input.intermediate",
                               fluidRow(column(4,"VA:",verbatimTextOutput("VA_c")),
@@ -184,20 +184,24 @@ ui <- fluidPage(
                column(4,numericInput("t_t.sd", label = "Standard Deviation (minutes):", value = 0))
                #conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("t_t.rsd")))
              ),
-             fluidRow(
-               column(4,numericInput("AL_t", label = "Activity Level:", value = 0)),
-               column(4,numericInput("AL_t.sd", label = "Standard Deviation:", value = 0))
-               #conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("AL_t.rsd")))
+             conditionalPanel("input.advanced",
+                              fluidRow(
+                                column(4,numericInput("AL_t", label = "Activity Level:", value = 0)),
+                                column(4,numericInput("AL_t.sd", label = "Standard Deviation:", value = 0))
+                                #conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("AL_t.rsd")))
+                              )
              ),
              fluidRow(
                column(4,numericInput("x.O2_t", label = "Oxygen level (% oxygen):", value = 100)),
                column(4,numericInput("x.O2_t.sd", label = "Standard Deviation (% oxygen):", value = 0))
                #conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("x.O2_t.rsd")))
              ),
-             fluidRow(
-               column(4,numericInput("x.CO_t", label = "Carbon Monoxide Level (ppm):", value = 0)),
-               column(4,numericInput("x.CO_t.sd", label = "Standard Deviation (ppm):", value = 0))
-               #conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("x.CO_t.rsd")))
+             conditionalPanel("input.advanced",
+                              fluidRow(
+                                column(4,numericInput("x.CO_t", label = "Carbon Monoxide Level (ppm):", value = 0)),
+                                column(4,numericInput("x.CO_t.sd", label = "Standard Deviation (ppm):", value = 0))
+                                #conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("x.CO_t.rsd")))
+                              )
              ),
              conditionalPanel("input.intermediate",
                               fluidRow(column(4,"VA:",verbatimTextOutput("VA_t")),
