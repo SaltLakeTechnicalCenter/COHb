@@ -36,9 +36,13 @@ server <- function(input, output, session) {
   h.MC = reactive(rnorm(n(),h(),h.sd()))
   # Smoker Status
   SS = reactive({
-    if (input$SS>4) updateNumericInput(session, "SS", value = 4)
-    if (input$SS<0) updateNumericInput(session, "SS", value = 0)
-    input$SS
+    if (input$SS_method=='nonSmoker') 0
+    else if (input$SS_method=='cigarettes') as.integer(-2.7895 + sqrt(7.7813 + 14.1052*input$cigarettes)/.70526 + .5)/10 - .06
+    else {
+      if (input$SS>4) updateNumericInput(session, "SS", value = 4)
+      if (input$SS<0) updateNumericInput(session, "SS", value = 0)
+      input$SS
+    }
   })
   SS.sd = reactive(
     if (SS()==0) 0
@@ -265,6 +269,7 @@ server <- function(input, output, session) {
   output$Hb.rsd = renderText(Hb.sd()/Hb())
   output$h.rsd = renderText(h.sd()/h())
   output$w.rsd = renderText(w.sd()/w())
+  output$SS = renderText(SS())
   output$SS.sd = renderText(SS.sd())
   output$SS.rsd = renderText(SS.sd()/SS())
   output$z.rsd = renderText(z.sd()/z())
