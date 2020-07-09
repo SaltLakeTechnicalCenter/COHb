@@ -40,7 +40,10 @@ server <- function(input, output, session) {
     if (input$SS<0) updateNumericInput(session, "SS", value = 0)
     input$SS
   })
-  SS.sd = reactive(input$SS.sd)
+  SS.sd = reactive(
+    if (SS()==0) 0
+    else 0.32*SS()
+    )
   SS.MC = reactive(rnorm(n(),SS(),SS.sd()))
   # Elevation
   z = reactive(input$z*ft)
@@ -262,6 +265,7 @@ server <- function(input, output, session) {
   output$Hb.rsd = renderText(Hb.sd()/Hb())
   output$h.rsd = renderText(h.sd()/h())
   output$w.rsd = renderText(w.sd()/w())
+  output$SS.sd = renderText(SS.sd())
   output$SS.rsd = renderText(SS.sd()/SS())
   output$z.rsd = renderText(z.sd()/z())
   output$PB.rsd = renderText(PB.sd()/PB())

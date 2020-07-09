@@ -35,21 +35,22 @@ ui <- fluidPage(
              )
     ),
     tabPanel("Employee",
-             fluidRow(column(4,textInput("name", label = "Employee Name:"))),
-             fluidRow(column(4,selectInput("gender", label = "Gender", c("male","female")))),
+             fluidRow(column(4,textInput("name", label = "Employee Name:")),
+                      column(4,selectInput("gender", label = "Gender", c("male","female")))
+             ),
              fluidRow(
                column(4,numericInput("h", label = "Height (inches):", value = 67)),
-               column(4,numericInput("h.sd", label = "Standard Deviation (inches):", value = 0)),
+               column(4,numericInput("h.sd", label = "Standard Deviation (inches):", value = 1)),
                conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("h.rsd")))
              ),
              fluidRow(
                column(4,numericInput("w", label = "Weight (pounds):", value = 166)),
-               column(4,numericInput("w.sd", label = "Standard Deviation (pounds):", value = 0)),
+               column(4,numericInput("w.sd", label = "Standard Deviation (pounds):", value = 2)),
                conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("w.rsd")))
              ),
              fluidRow(
                column(4,numericInput("SS", label = "Smoker Status:", value = 0, min = 0, max = 4)),
-               column(4,numericInput("SS.sd", label = "Standard Deviation:", value = 0)),
+               column(4,"Standard deviation",verbatimTextOutput("SS.sd")),
                conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("SS.rsd")))
              ),
              conditionalPanel("input.intermediate",
@@ -72,7 +73,7 @@ ui <- fluidPage(
              conditionalPanel(condition="input.PB_method=='elevation'",
                               fluidRow(
                                 column(4,numericInput("z", label = "Elevation (ft):", value = 0)),
-                                column(4,numericInput("z.sd", label = "Standard Deviation (ft):", value = 0)),
+                                column(4,numericInput("z.sd", label = "Standard Deviation (ft):", value = 100)),
                                 conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("z.rsd")))
                                 ),
                               fluidRow(
@@ -101,12 +102,12 @@ ui <- fluidPage(
     tabPanel("Exposure",
              fluidRow(
                column(4,numericInput("t_e", label = "Duration (minutes):", value = 350)),
-               column(4,numericInput("t_e.sd", label = "Standard Deviation (minutes):", value = 0)),
+               column(4,numericInput("t_e.sd", label = "Standard Deviation (minutes):", value = 15)),
                conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("t_e.rsd")))
              ),
              fluidRow(
                column(4,numericInput("AL_e", label = "Activity Level:", value = 1)),
-               column(4,numericInput("AL_e.sd", label = "Standard Deviation:", value = 0)),
+               column(4,numericInput("AL_e.sd", label = "Standard Deviation:", value = 0.5)),
                conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("AL_e.rsd")))
              ),
              conditionalPanel("input.advanced",
@@ -143,12 +144,12 @@ ui <- fluidPage(
     tabPanel("Clearance",
              fluidRow(
                column(4,numericInput("t_c", label = "Duration (minutes):", value = 160)),
-               column(4,numericInput("t_c.sd", label = "Standard Deviation (minutes):", value = 0)),
+               column(4,numericInput("t_c.sd", label = "Standard Deviation (minutes):", value = 15)),
                conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("t_c.rsd")))
              ),
              fluidRow(
                column(4,numericInput("AL_c", label = "Activity Level:", value = 0)),
-               column(4,numericInput("AL_c.sd", label = "Standard Deviation:", value = 0)),
+               column(4,numericInput("AL_c.sd", label = "Standard Deviation:", value = 0.5)),
                conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("AL_c.rsd")))
              ),
              conditionalPanel("input.advanced",
@@ -230,7 +231,7 @@ ui <- fluidPage(
              checkboxInput("advanced", "Show advanced features", FALSE),
              checkboxInput("intermediate", "Show intermediate values", FALSE),
              checkboxInput("doMonteCarlo", "Perform Monte Carlo simulations", FALSE),
-             conditionalPanel("input.doMonteCarlo",fluidRow(column(4,numericInput("n", label = "Number of Monte Carlo simulations:", value = 10)))),
+             conditionalPanel("input.doMonteCarlo",fluidRow(column(4,numericInput("n", label = "Number of Monte Carlo simulations:", value = 100)))),
              checkboxInput("showRSD", "Show relative standard deviation values", FALSE)
     ),
     tabPanel("Summary"
