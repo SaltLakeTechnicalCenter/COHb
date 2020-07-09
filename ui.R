@@ -4,7 +4,7 @@ ui <- fluidPage(
   textOutput("abstract"),
   plotOutput("timePlot"),
   tabsetPanel(
-    tabPanel("Blood",
+    tabPanel("Sample",
              fluidRow(column(4,textInput("ID", label = "Sample Number:", value = "#"))),
              fluidRow(column(4,selectInput("COHb_method", label = "COHb known from:", c("SpCO","blood","breath")))),
              fluidRow(
@@ -12,8 +12,8 @@ ui <- fluidPage(
                column(4,
                       conditionalPanel(condition="input.COHb_method!='breath'","Standard Deviation:",verbatimTextOutput("XCOHb.sd")),
                       conditionalPanel(condition="input.COHb_method=='breath'",numericInput("XCOHb.sd", label = "Standard Deviation (%):", value = 0))
-                      )
-               #conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("XCOHb.rsd")))
+                      ),
+               conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("XCOHb.rsd")))
              ),
              fluidRow(column(4,selectInput("Hb_method", label = "Hb known from:", c("gender","blood")))),
              fluidRow(
@@ -24,7 +24,8 @@ ui <- fluidPage(
                column(4,
                       conditionalPanel(condition="input.Hb_method!='blood'","Standard Deviation:",verbatimTextOutput("Hb.sd")),
                       conditionalPanel(condition="input.Hb_method=='blood'",numericInput("Hb.sd", label = "Standard Deviation (grams/100mL):", value = 0))
-                      )
+                      ),
+               conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("Hb.rsd")))
              ),
              conditionalPanel("input.intermediate",
                               fluidRow(
@@ -38,18 +39,18 @@ ui <- fluidPage(
              fluidRow(column(4,selectInput("gender", label = "Gender", c("male","female")))),
              fluidRow(
                column(4,numericInput("h", label = "Height (inches):", value = 67)),
-               column(4,numericInput("h.sd", label = "Standard Deviation (inches):", value = 0))
-               #conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("h.rsd")))
+               column(4,numericInput("h.sd", label = "Standard Deviation (inches):", value = 0)),
+               conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("h.rsd")))
              ),
              fluidRow(
                column(4,numericInput("w", label = "Weight (pounds):", value = 166)),
-               column(4,numericInput("w.sd", label = "Standard Deviation (pounds):", value = 0))
-               #conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("w.rsd")))
+               column(4,numericInput("w.sd", label = "Standard Deviation (pounds):", value = 0)),
+               conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("w.rsd")))
              ),
              fluidRow(
                column(4,numericInput("SS", label = "Smoker Status:", value = 0, min = 0, max = 4)),
-               column(4,numericInput("SS.sd", label = "Standard Deviation:", value = 0))
-               #conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("SS.rsd")))
+               column(4,numericInput("SS.sd", label = "Standard Deviation:", value = 0)),
+               conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("SS.rsd")))
              ),
              conditionalPanel("input.intermediate",
                               fluidRow(
@@ -71,18 +72,19 @@ ui <- fluidPage(
              conditionalPanel(condition="input.PB_method=='elevation'",
                               fluidRow(
                                 column(4,numericInput("z", label = "Elevation (ft):", value = 0)),
-                                column(4,numericInput("z.sd", label = "Standard Deviation (ft):", value = 0))
+                                column(4,numericInput("z.sd", label = "Standard Deviation (ft):", value = 0)),
+                                conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("z.rsd")))
                                 ),
                               fluidRow(
                                 column(4,"Atmospheric Pressure:",verbatimTextOutput("PB")),
                                 column(4,"Standard Deviation:",verbatimTextOutput("PB.sd"))
-                              )
+                                )
              ),
              conditionalPanel(condition="input.PB_method=='pressure'",
                               fluidRow(
                                 column(4,numericInput("PB", label = "Atmospheric Pressure (mmHg):", value = 740)),
-                                column(4,numericInput("PB.sd", label = "Standard Deviation (mmHg):", value = 0))
-                                #conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("PB.rsd")))
+                                column(4,numericInput("PB.sd", label = "Standard Deviation (mmHg):", value = 0)),
+                                conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("PB.rsd")))
                               )
              )
              #fluidRow(
@@ -99,25 +101,25 @@ ui <- fluidPage(
     tabPanel("Exposure",
              fluidRow(
                column(4,numericInput("t_e", label = "Duration (minutes):", value = 350)),
-               column(4,numericInput("t_e.sd", label = "Standard Deviation (minutes):", value = 0))
-               #conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("t_e.rsd")))
+               column(4,numericInput("t_e.sd", label = "Standard Deviation (minutes):", value = 0)),
+               conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("t_e.rsd")))
              ),
              fluidRow(
                column(4,numericInput("AL_e", label = "Activity Level:", value = 1)),
-               column(4,numericInput("AL_e.sd", label = "Standard Deviation:", value = 0))
-               #conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("AL_e.rsd")))
+               column(4,numericInput("AL_e.sd", label = "Standard Deviation:", value = 0)),
+               conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("AL_e.rsd")))
              ),
              conditionalPanel("input.advanced",
                               fluidRow(
                                 column(4,numericInput("x.O2_e", label = "Oxygen level (% oxygen):", value = 21)),
-                                column(4,numericInput("x.O2_e.sd", label = "Standard Deviation (% oxygen):", value = 0))
-                                #conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("x.O2_e.rsd")))
+                                column(4,numericInput("x.O2_e.sd", label = "Standard Deviation (% oxygen):", value = 0)),
+                                conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("x.O2_e.rsd")))
                               )
              ),
              fluidRow(
                column(4,numericInput("x.CO_e.s", label = "CO exposure from smoking (ppm):", value = 0)),
-               column(4,numericInput("x.CO_e.s.sd", label = "Standard Deviation (ppm):", value = 0))
-               #conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("x.CO_e.s.rsd")))
+               column(4,numericInput("x.CO_e.s.sd", label = "Standard Deviation (ppm):", value = 0)),
+               conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("x.CO_e.s.rsd")))
              ),
              conditionalPanel("input.intermediate",
                               fluidRow(column(4,"VA:",verbatimTextOutput("VA_e")),
@@ -141,24 +143,24 @@ ui <- fluidPage(
     tabPanel("Clearance",
              fluidRow(
                column(4,numericInput("t_c", label = "Duration (minutes):", value = 160)),
-               column(4,numericInput("t_c.sd", label = "Standard Deviation (minutes):", value = 0))
-               #conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("t_c.rsd")))
+               column(4,numericInput("t_c.sd", label = "Standard Deviation (minutes):", value = 0)),
+               conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("t_c.rsd")))
              ),
              fluidRow(
                column(4,numericInput("AL_c", label = "Activity Level:", value = 0)),
-               column(4,numericInput("AL_c.sd", label = "Standard Deviation:", value = 0))
-               #conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("AL_c.rsd")))
+               column(4,numericInput("AL_c.sd", label = "Standard Deviation:", value = 0)),
+               conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("AL_c.rsd")))
              ),
              conditionalPanel("input.advanced",
                               fluidRow(
                                 column(4,numericInput("x.O2_c", label = "Oxygen level (% oxygen):", value = 21)),
-                                column(4,numericInput("x.O2_c.sd", label = "Standard Deviation (% oxygen):", value = 0))
-                                #conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("x.O2_c.rsd")))
+                                column(4,numericInput("x.O2_c.sd", label = "Standard Deviation (% oxygen):", value = 0)),
+                                conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("x.O2_c.rsd")))
                               ),
                               fluidRow(
                                 column(4,numericInput("x.CO_c", label = "Carbon Monoxide Level (ppm):", value = 2)),
-                                column(4,numericInput("x.CO_c.sd", label = "Standard Deviation (ppm):", value = 0))
-                                #conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("x.CO_c.rsd")))
+                                column(4,numericInput("x.CO_c.sd", label = "Standard Deviation (ppm):", value = 0)),
+                                conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("x.CO_c.rsd")))
                               )
              ),
              conditionalPanel("input.intermediate",
@@ -181,26 +183,26 @@ ui <- fluidPage(
     tabPanel("Oxygen Therapy",
              fluidRow(
                column(4,numericInput("t_t", label = "Duration (minutes):", value = 0)),
-               column(4,numericInput("t_t.sd", label = "Standard Deviation (minutes):", value = 0))
-               #conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("t_t.rsd")))
+               column(4,numericInput("t_t.sd", label = "Standard Deviation (minutes):", value = 0)),
+               conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("t_t.rsd")))
              ),
              conditionalPanel("input.advanced",
                               fluidRow(
                                 column(4,numericInput("AL_t", label = "Activity Level:", value = 0)),
-                                column(4,numericInput("AL_t.sd", label = "Standard Deviation:", value = 0))
-                                #conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("AL_t.rsd")))
+                                column(4,numericInput("AL_t.sd", label = "Standard Deviation:", value = 0)),
+                                conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("AL_t.rsd")))
                               )
              ),
              fluidRow(
                column(4,numericInput("x.O2_t", label = "Oxygen level (% oxygen):", value = 100)),
-               column(4,numericInput("x.O2_t.sd", label = "Standard Deviation (% oxygen):", value = 0))
-               #conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("x.O2_t.rsd")))
+               column(4,numericInput("x.O2_t.sd", label = "Standard Deviation (% oxygen):", value = 0)),
+               conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("x.O2_t.rsd")))
              ),
              conditionalPanel("input.advanced",
                               fluidRow(
                                 column(4,numericInput("x.CO_t", label = "Carbon Monoxide Level (ppm):", value = 0)),
-                                column(4,numericInput("x.CO_t.sd", label = "Standard Deviation (ppm):", value = 0))
-                                #conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("x.CO_t.rsd")))
+                                column(4,numericInput("x.CO_t.sd", label = "Standard Deviation (ppm):", value = 0)),
+                                conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("x.CO_t.rsd")))
                               )
              ),
              conditionalPanel("input.intermediate",
@@ -230,7 +232,6 @@ ui <- fluidPage(
              checkboxInput("doMonteCarlo", "Perform Monte Carlo simulations", FALSE),
              conditionalPanel("input.doMonteCarlo",fluidRow(column(4,numericInput("n", label = "Number of Monte Carlo simulations:", value = 10)))),
              checkboxInput("showRSD", "Show relative standard deviation values", FALSE)
-             #checkboxInput("showRSD", "Show relative standard deviation", FALSE),
     ),
     tabPanel("Summary"
              #tableOutput("CSVcontents")
