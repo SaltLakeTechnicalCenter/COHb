@@ -36,19 +36,19 @@ server <- function(input, output, session) {
   h.MC = reactive(rnorm(n(),h(),h.sd()))
   # Smoker Status
   SS = reactive({
-    if (input$SS_method=='nonSmoker') 0
-    else if (input$SS_method=='cigarettes') as.integer(-2.7895 + sqrt(7.7813 + 14.1052*input$cigarettes)/.70526 + .5)/10 - .06
-    else {
       if (input$SS>4) updateNumericInput(session, "SS", value = 4)
       if (input$SS<0) updateNumericInput(session, "SS", value = 0)
       input$SS
-    }
   })
-  SS.sd = reactive(
-    if (SS()==0) 0
-    else 0.32*SS()
-    )
+  SS.sd = reactive(if (SS()==0) 0 else 0.32*SS())
   SS.MC = reactive(rnorm(n(),SS(),SS.sd()))
+  cigarettes=reactive({
+    if (input$cigarettes>67) updateNumericInput(session, "cigarettes", value = 67)
+    if (input$cigarettes<0) updateNumericInput(session, "cigarettes", value = 0)
+    input$cigarettes
+    })
+  cigarettes.sd=reactive(input$cigarettes.sd)
+  cigarettes.MC = reactive(rnorm(n(),cigarettes(),cigarettes.sd()))
   # Elevation
   z = reactive(input$z*ft)
   z.sd = reactive(input$z.sd*ft)
@@ -131,9 +131,19 @@ server <- function(input, output, session) {
   COHb.D.MC = reactive(COHb(XCOHb=XCOHb.MC(),Hb=Hb.MC()))
   output$COHb.D.sd = renderPrint(cat(sd(COHb.D.MC())/percent,"%"))
   # Fraction of COHb in blood prior to exposure (%)
-  XCOHb.A = reactive(XCOHb.0(SS=SS()))
+  XCOHb.A = reactive(
+    if (input$SS_method=='nonSmoker') XCOHb.0_c(cigs=0)
+    else if (input$SS_method=='cigarettes') XCOHb.0_c(cigs=cigarettes())
+    else if (input$SS_method=='level') XCOHb.0_s(SS=SS())
+    #else if (input$SS_method=='XCOHb.0') 0
+    )
   output$XCOHb.A = renderPrint(cat("XCOHb.A =",XCOHb.A()/percent,"%"))
-  XCOHb.A.MC = reactive(XCOHb.0(SS=SS.MC()))
+  XCOHb.A.MC = reactive(
+    if (input$SS_method=='nonSmoker') XCOHb.0_c(cigs=0)
+    else if (input$SS_method=='cigarettes') XCOHb.0_c(cigs=cigarettes.MC())
+    else if (input$SS_method=='level') XCOHb.0_s(SS=SS.MC())
+    #else if (input$SS_method=='XCOHb.0') 0
+    )
   output$XCOHb.A.sd = renderPrint(cat(sd(XCOHb.A.MC())/percent,"%"))
   # COHb in blood prior to exposure
   COHb.A = reactive(Hf*Hb()*XCOHb.A())
@@ -286,6 +296,7 @@ server <- function(input, output, session) {
   output$AL_t.rsd = renderText(AL_t.sd()/AL_t())
   output$x.O2_t.rsd = renderText(x.O2_t.sd()/x.O2_t())
   output$x.CO_t.rsd = renderText(x.CO_t.sd()/x.CO_t())
+  output$cigarettes.rsd = renderText(cigarettes.sd()/cigarettes())
 
   output$abstract = renderPrint(
     cat(

@@ -50,16 +50,18 @@ ui <- fluidPage(
              ),
              fluidRow(
                column(4,selectInput("SS_method", label = "Smoker Status method", c("nonSmoker","cigarettes","level"))),
-               conditionalPanel(condition="input.SS_method=='cigarettes'",
-                                column(4,numericInput("cigarettes", label = "Cigarettes smoked per day:", value = 0, min = 0)))
                ),
-             fluidRow(
-               #conditionalPanel(condition="input.SS_method=='nonSmoker'",column(4,"Non Smoker")),
-               conditionalPanel(condition="input.SS_method=='cigarettes'",column(4,"Smoker Status:",verbatimTextOutput("SS"))),
-               conditionalPanel(condition="input.SS_method=='level'",column(4,numericInput("SS", label = "Smoker Status:", value = 0, min = 0, max = 4))),
-               conditionalPanel(condition="input.SS_method!='nonSmoker'",column(4,"Standard deviation",verbatimTextOutput("SS.sd"))),
+             #conditionalPanel(condition="input.SS_method=='nonSmoker'",fluidRow()),
+             conditionalPanel(condition="input.SS_method=='cigarettes'",fluidRow(
+               column(4,numericInput("cigarettes", label = "Cigarettes smoked per day:", value = 0, min = 0)),
+               column(4,numericInput("cigarettes.sd", label = "Standard Deviation:", value = 0)),
+               conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("cigarettes.rsd")))
+             )),
+             conditionalPanel(condition="input.SS_method=='level'",fluidRow(
+               column(4,numericInput("SS", label = "Smoker Status:", value = 0, min = 0, max = 4)),
+               column(4,"Standard Deviation",verbatimTextOutput("SS.sd")),
                conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("SS.rsd")))
-             ),
+             )),
              conditionalPanel("input.intermediate",
                               fluidRow(
                                 column(4,"Estimated blood volume of employee:",verbatimTextOutput("Vb")),
