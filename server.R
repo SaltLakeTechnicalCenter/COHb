@@ -352,7 +352,9 @@ server <- function(input, output, session) {
       df <- rbind(df, "elevation" = list(value=input$z, uncertainty=input$z.sd, units="ft"), stringsAsFactors=FALSE)
       df <- rbind(df, "exposure duration" = list(value=input$t_e, uncertainty=input$t_e.sd, units="minute"), stringsAsFactors=FALSE)
       df <- rbind(df, "exposure activity level" = list(value=input$AL_e, uncertainty=input$AL_e.sd, units=""), stringsAsFactors=FALSE)
-      df <- rbind(df, "smoker status" = list(value=input$SS, uncertainty=input$SS.sd, units=""), stringsAsFactors=FALSE)
+      df <- rbind(df, "smoker status method" = list(value=NA, uncertainty=NA, units=input$SS_method), stringsAsFactors=FALSE)
+      df <- rbind(df, "cigarettes" = list(value=input$cigarettes, uncertainty=input$cigarettes.sd, units=""), stringsAsFactors=FALSE)
+      df <- rbind(df, "smoker status" = list(value=input$SS, uncertainty=SS.sd(), units=""), stringsAsFactors=FALSE)
       df <- rbind(df, "exposure oxygen level" = list(value=input$x.O2_e, uncertainty=input$x.O2_e.sd, units="%"), stringsAsFactors=FALSE)
       df <- rbind(df, "CO exposure from smoking" = list(value=input$x.CO_e.s, uncertainty=input$x.CO_e.s.sd, units="ppm"), stringsAsFactors=FALSE)
       df <- rbind(df, "clearance duration" = list(value=input$t_c, uncertainty=input$t_c.sd, units="minute"), stringsAsFactors=FALSE)
@@ -396,6 +398,9 @@ server <- function(input, output, session) {
         if ('exposure duration' %in% row.names(tmp)) updateTextInput(session, inputId = "t_e.sd", value = tmp["exposure duration","uncertainty"])
         if ('exposure activity level' %in% row.names(tmp)) updateTextInput(session, inputId = "AL_e", value = tmp["exposure activity level","value"])
         if ('exposure activity level' %in% row.names(tmp)) updateTextInput(session, inputId = "AL_e.sd", value = tmp["exposure activity level","uncertainty"])
+        if ('smoker status method' %in% row.names(tmp)) updateTextInput(session, inputId = "SS_method", value = tmp["smoker status method","units"])
+        if ('cigarettes' %in% row.names(tmp)) updateTextInput(session, inputId = "cigarettes", value = tmp["cigarettes","value"])
+        if ('cigarettes' %in% row.names(tmp)) updateTextInput(session, inputId = "cigarettes.sd", value = tmp["cigarettes","uncertainty"])
         if ('smoker status' %in% row.names(tmp)) updateTextInput(session, inputId = "SS", value = tmp["smoker status","value"])
         if ('smoker status' %in% row.names(tmp)) updateTextInput(session, inputId = "SS.sd", value = tmp["smoker status","uncertainty"])
         if ('exposure oxygen level' %in% row.names(tmp)) updateTextInput(session, inputId = "x.O2_e", value = tmp["exposure oxygen level","value"])
@@ -530,6 +535,7 @@ server <- function(input, output, session) {
           updateSelectInput(session, inputId = "PB_method", selected = "pressure")
           updateSelectInput(session, inputId = "COHb_method", selected = "breath")
           updateSelectInput(session, inputId = "Hb_method", selected = "blood")
+          updateSelectInput(session, inputId = "SS_method", selected = "level")
           close(con)
       },
       error = function(e) {stop(safeError(e))}

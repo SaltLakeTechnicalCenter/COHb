@@ -49,9 +49,8 @@ ui <- fluidPage(
                conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("w.rsd")))
              ),
              fluidRow(
-               column(4,selectInput("SS_method", label = "Smoker Status method", c("nonSmoker","cigarettes","level"))),
+               column(4,selectInput("SS_method", label = "Smoker Status method", c("nonSmoker","cigarettes","level")))
                ),
-             #conditionalPanel(condition="input.SS_method=='nonSmoker'",fluidRow()),
              conditionalPanel(condition="input.SS_method=='cigarettes'",fluidRow(
                column(4,numericInput("cigarettes", label = "Cigarettes smoked per day:", value = 0, min = 0)),
                column(4,numericInput("cigarettes.sd", label = "Standard Deviation:", value = 0)),
