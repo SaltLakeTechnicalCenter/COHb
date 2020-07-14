@@ -4,6 +4,9 @@ server <- function(input, output, session) {
   OEL = 35*ppm
   OelLabel = "OSHA PEL"
   
+  smoker = reactive(input$smoker)
+  output$value = renderText(smoker())
+  
   #========== Input Parameters ==========#
   # COHb in blood sample (%)
   XCOHb = reactive(input$XCOHb*percent)
@@ -42,6 +45,7 @@ server <- function(input, output, session) {
   })
   SS.sd = reactive(if (SS()==0) 0 else 0.32*SS())
   SS.MC = reactive(rnorm(n(),SS(),SS.sd()))
+  # Cigarettes smoked per day
   cigarettes=reactive({
     if (input$cigarettes>67) updateNumericInput(session, "cigarettes", value = 67)
     if (input$cigarettes<0) updateNumericInput(session, "cigarettes", value = 0)
@@ -49,6 +53,10 @@ server <- function(input, output, session) {
     })
   cigarettes.sd=reactive(input$cigarettes.sd)
   cigarettes.MC = reactive(rnorm(n(),cigarettes(),cigarettes.sd()))
+  # Initial COHb in blood
+  XCOHb.0=reactive(input$XCOHb.0*percent)
+  XCOHb.0.sd=reactive(input$XCOHb.0.sd*percent)
+  XCOHb.0.MC = reactive(rnorm(n(),XCOHb.0(),XCOHb.0.sd()))
   # Elevation
   z = reactive(input$z*ft)
   z.sd = reactive(input$z.sd*ft)
@@ -132,17 +140,21 @@ server <- function(input, output, session) {
   output$COHb.D.sd = renderPrint(cat(sd(COHb.D.MC())/percent,"%"))
   # Fraction of COHb in blood prior to exposure (%)
   XCOHb.A = reactive(
-    if (input$SS_method=='nonSmoker') XCOHb.0_c(cigs=0)
-    else if (input$SS_method=='cigarettes') XCOHb.0_c(cigs=cigarettes())
-    else if (input$SS_method=='level') XCOHb.0_s(SS=SS())
-    #else if (input$SS_method=='XCOHb.0') 0
-    )
+    if (input$smoker){
+      if (input$SS_method=='cigarettes') XCOHb.0_c(cigs=cigarettes())
+      else if (input$SS_method=='status') XCOHb.0_s(SS=SS())
+      else if (input$SS_method=='ppm') XCOHb.0()
+    }
+    else XCOHb.dat[1]
+  )
   output$XCOHb.A = renderPrint(cat("XCOHb.A =",XCOHb.A()/percent,"%"))
   XCOHb.A.MC = reactive(
-    if (input$SS_method=='nonSmoker') XCOHb.0_c(cigs=0)
-    else if (input$SS_method=='cigarettes') XCOHb.0_c(cigs=cigarettes.MC())
-    else if (input$SS_method=='level') XCOHb.0_s(SS=SS.MC())
-    #else if (input$SS_method=='XCOHb.0') 0
+    if (input$smoker){
+      if (input$SS_method=='cigarettes') XCOHb.0_c(cigs=cigarettes.MC())
+      else if (input$SS_method=='status') XCOHb.0_s(SS=SS.MC())
+      else if (input$SS_method=='ppm') XCOHb.0.MC()
+    }
+    else XCOHb.dat[1]
     )
   output$XCOHb.A.sd = renderPrint(cat(sd(XCOHb.A.MC())/percent,"%"))
   # COHb in blood prior to exposure
@@ -297,6 +309,7 @@ server <- function(input, output, session) {
   output$x.O2_t.rsd = renderText(x.O2_t.sd()/x.O2_t())
   output$x.CO_t.rsd = renderText(x.CO_t.sd()/x.CO_t())
   output$cigarettes.rsd = renderText(cigarettes.sd()/cigarettes())
+  output$XCOHb.0.rsd = renderText(XCOHb.0.sd()/XCOHb.0())
 
   output$abstract = renderPrint(
     cat(
@@ -352,6 +365,7 @@ server <- function(input, output, session) {
       df <- rbind(df, "elevation" = list(value=input$z, uncertainty=input$z.sd, units="ft"), stringsAsFactors=FALSE)
       df <- rbind(df, "exposure duration" = list(value=input$t_e, uncertainty=input$t_e.sd, units="minute"), stringsAsFactors=FALSE)
       df <- rbind(df, "exposure activity level" = list(value=input$AL_e, uncertainty=input$AL_e.sd, units=""), stringsAsFactors=FALSE)
+      df <- rbind(df, "smoker" = list(value=input$smoker, uncertainty=NA, units=NA), stringsAsFactors=FALSE)
       df <- rbind(df, "smoker status method" = list(value=NA, uncertainty=NA, units=input$SS_method), stringsAsFactors=FALSE)
       df <- rbind(df, "cigarettes" = list(value=input$cigarettes, uncertainty=input$cigarettes.sd, units=""), stringsAsFactors=FALSE)
       df <- rbind(df, "smoker status" = list(value=input$SS, uncertainty=SS.sd(), units=""), stringsAsFactors=FALSE)
@@ -398,6 +412,7 @@ server <- function(input, output, session) {
         if ('exposure duration' %in% row.names(tmp)) updateTextInput(session, inputId = "t_e.sd", value = tmp["exposure duration","uncertainty"])
         if ('exposure activity level' %in% row.names(tmp)) updateTextInput(session, inputId = "AL_e", value = tmp["exposure activity level","value"])
         if ('exposure activity level' %in% row.names(tmp)) updateTextInput(session, inputId = "AL_e.sd", value = tmp["exposure activity level","uncertainty"])
+        if ('smoker' %in% row.names(tmp)) updateCheckboxInput(session, inputId = "smoker", value = tmp["smoker","value"])
         if ('smoker status method' %in% row.names(tmp)) updateTextInput(session, inputId = "SS_method", value = tmp["smoker status method","units"])
         if ('cigarettes' %in% row.names(tmp)) updateTextInput(session, inputId = "cigarettes", value = tmp["cigarettes","value"])
         if ('cigarettes' %in% row.names(tmp)) updateTextInput(session, inputId = "cigarettes.sd", value = tmp["cigarettes","uncertainty"])
@@ -535,7 +550,8 @@ server <- function(input, output, session) {
           updateSelectInput(session, inputId = "PB_method", selected = "pressure")
           updateSelectInput(session, inputId = "COHb_method", selected = "breath")
           updateSelectInput(session, inputId = "Hb_method", selected = "blood")
-          updateSelectInput(session, inputId = "SS_method", selected = "level")
+          updateSelectInput(session, inputId = "SS_method", selected = "status")
+          updateSelectInput(session, inputId = "smoker", selected = "TRUE")
           close(con)
       },
       error = function(e) {stop(safeError(e))}

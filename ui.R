@@ -49,18 +49,26 @@ ui <- fluidPage(
                conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("w.rsd")))
              ),
              fluidRow(
-               column(4,selectInput("SS_method", label = "Smoker Status method", c("nonSmoker","cigarettes","level")))
+               column(4,checkboxInput("smoker", "Smoker?", FALSE)),
+               conditionalPanel("input.smoker",column(4,selectInput("SS_method", label = "Initial COHb method", c("cigarettes","status","ppm"))))
                ),
-             conditionalPanel(condition="input.SS_method=='cigarettes'",fluidRow(
-               column(4,numericInput("cigarettes", label = "Cigarettes smoked per day:", value = 0, min = 0)),
-               column(4,numericInput("cigarettes.sd", label = "Standard Deviation:", value = 0)),
-               conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("cigarettes.rsd")))
-             )),
-             conditionalPanel(condition="input.SS_method=='level'",fluidRow(
-               column(4,numericInput("SS", label = "Smoker Status:", value = 0, min = 0, max = 4)),
-               column(4,"Standard Deviation",verbatimTextOutput("SS.sd")),
-               conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("SS.rsd")))
-             )),
+             conditionalPanel("input.smoker",
+                              conditionalPanel(condition="input.SS_method=='cigarettes'",fluidRow(
+                                column(4,numericInput("cigarettes", label = "Cigarettes smoked per day:", value = 0, min = 0)),
+                                column(4,numericInput("cigarettes.sd", label = "Standard Deviation:", value = 0)),
+                                conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("cigarettes.rsd")))
+                              )),
+                              conditionalPanel(condition="input.SS_method=='status'",fluidRow(
+                                column(4,numericInput("SS", label = "Smoker Status:", value = 0, min = 0, max = 4)),
+                                column(4,"Standard Deviation",verbatimTextOutput("SS.sd")),
+                                conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("SS.rsd")))
+                              )),
+                              conditionalPanel(condition="input.SS_method=='ppm'",fluidRow(
+                                column(4,numericInput("XCOHb.0", label = "Initial COHb in blood (%):", value = 0.75)),
+                                column(4,numericInput("XCOHb.0.sd", label = "Standard Deviation:", value = 0)),
+                                conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("XCOHb.0.rsd")))
+                              ))
+             ),
              conditionalPanel("input.intermediate",
                               fluidRow(
                                 column(4,"Estimated blood volume of employee:",verbatimTextOutput("Vb")),
