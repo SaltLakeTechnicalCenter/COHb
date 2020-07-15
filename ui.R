@@ -50,7 +50,7 @@ ui <- fluidPage(
              ),
              fluidRow(
                column(4,checkboxInput("smoker", "Smoker?", FALSE)),
-               conditionalPanel("input.smoker",column(4,selectInput("SS_method", label = "Initial COHb method", c("cigarettes","status","ppm"))))
+               conditionalPanel("input.smoker",column(4,selectInput("SS_method", label = "Initial COHb known from:", c("cigarettes","status","percent"))))
                ),
              conditionalPanel("input.smoker",
                               conditionalPanel(condition="input.SS_method=='cigarettes'",fluidRow(
@@ -63,7 +63,7 @@ ui <- fluidPage(
                                 column(4,"Standard Deviation",verbatimTextOutput("SS.sd")),
                                 conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("SS.rsd")))
                               )),
-                              conditionalPanel(condition="input.SS_method=='ppm'",fluidRow(
+                              conditionalPanel(condition="input.SS_method=='percent'",fluidRow(
                                 column(4,numericInput("XCOHb.0", label = "Initial COHb in blood (%):", value = 0.75)),
                                 column(4,numericInput("XCOHb.0.sd", label = "Standard Deviation:", value = 0)),
                                 conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("XCOHb.0.rsd")))
@@ -85,7 +85,7 @@ ui <- fluidPage(
              )
     ),
     tabPanel("Environment",
-             fluidRow(column(4,selectInput("PB_method", label = "Pressure method", c("elevation","pressure")))),
+             fluidRow(column(4,selectInput("PB_method", label = "Pressure known from:", c("elevation","pressure")))),
              conditionalPanel(condition="input.PB_method=='elevation'",
                               fluidRow(
                                 column(4,numericInput("z", label = "Elevation (ft):", value = 0)),
@@ -122,7 +122,7 @@ ui <- fluidPage(
                conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("t_e.rsd")))
              ),
              fluidRow(
-               column(4,numericInput("AL_e", label = "Activity Level:", value = 1)),
+               column(4,numericInput("AL_e", label = "Activity Level:", value = 1, min = 0, max = 4)),
                column(4,numericInput("AL_e.sd", label = "Standard Deviation:", value = 0.5)),
                conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("AL_e.rsd")))
              ),
@@ -134,9 +134,43 @@ ui <- fluidPage(
                               )
              ),
              fluidRow(
-               column(4,numericInput("x.CO_e.s", label = "CO exposure from smoking (ppm):", value = 0)),
-               column(4,numericInput("x.CO_e.s.sd", label = "Standard Deviation (ppm):", value = 0)),
-               conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("x.CO_e.s.rsd")))
+               column(4,checkboxInput("shs_e", "Second hand smoke?", FALSE)),
+               conditionalPanel("input.shs_e",column(4,selectInput("shs_e_method", label = "Second hand smoke known from:", c("time","percent","ppm"))))
+             ),
+             conditionalPanel("input.shs_e",fluidRow(
+               conditionalPanel(condition="input.shs_e_method=='time'",
+                                column(4,numericInput("shs_e.time", label = "Exposure to second hand smoke (minutes):", value = 0)),
+                                column(4,numericInput("shs_e.time.sd", label = "Standard Deviation (minutes):", value = 0)),
+                                conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("shs_e.time.rsd")))
+               ),
+               conditionalPanel(condition="input.shs_e_method=='percent'",
+                                column(4,numericInput("shs_e.percent", label = "Exposure to second hand smoke (%):", value = 0)),
+                                column(4,numericInput("shs_e.percent.sd", label = "Standard Deviation (%):", value = 0)),
+                                conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("shs_e.percent.rsd")))
+               ),
+               conditionalPanel(condition="input.shs_e_method=='ppm'",
+                                column(4,numericInput("shs_e.ppm", label = "Exposure to second hand smoke (ppm):", value = 0)),
+                                column(4,numericInput("shs_e.ppm.sd", label = "Standard Deviation (ppm):", value = 0)),
+                                conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("shs_e.ppm.rsd")))
+               )
+             )),
+             conditionalPanel("input.smoker",
+                              fluidRow(column(4,selectInput("fhs_e_method", label = "First hand smoke known from:", c("cigarettes","percent","ppm")))),
+                              conditionalPanel(condition="input.fhs_e_method=='cigarettes'",fluidRow(
+                                column(4,numericInput("cigarettes_e", label = "Cigarettes smoked:", value = 0)),
+                                column(4,numericInput("cigarettes_e.sd", label = "Standard Deviation:", value = 0)),
+                                conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("cigarettes_e.rsd")))
+                              )),
+                              conditionalPanel(condition="input.fhs_e_method=='percent'",fluidRow(
+                                column(4,numericInput("smoked_e", label = "Fraction of exposure time smoked (%):", value = 0)),
+                                column(4,numericInput("smoked_e.sd", label = "Standard Deviation (%):", value = 0)),
+                                conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("smoked_e.rsd")))
+                              )),
+                              conditionalPanel(condition="input.fhs_e_method=='ppm'",fluidRow(
+                                column(4,numericInput("x.CO_e.s", label = "CO exposure from smoking (ppm):", value = 0)),
+                                column(4,numericInput("x.CO_e.s.sd", label = "Standard Deviation (ppm):", value = 0)),
+                                conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("x.CO_e.s.rsd")))
+                              ))
              ),
              conditionalPanel("input.intermediate",
                               fluidRow(column(4,"VA:",verbatimTextOutput("VA_e")),
@@ -151,6 +185,8 @@ ui <- fluidPage(
                                        conditionalPanel("input.doMonteCarlo",column(4,"Standard Deviation:",verbatimTextOutput("PCO2_e.sd")))),
                               fluidRow(column(4,"x.CO_e:",verbatimTextOutput("x.CO_e")),
                                        conditionalPanel("input.doMonteCarlo",column(4,"Standard Deviation:",verbatimTextOutput("x.CO_e.sd")))),
+                              fluidRow(column(4,"x.CO_e.s:",verbatimTextOutput("x.CO_e.s")),
+                                       conditionalPanel("input.doMonteCarlo",column(4,"Standard Deviation:",verbatimTextOutput("x.CO_e.s.sd")))),
                               fluidRow(column(4,"x.CO_e.o:",verbatimTextOutput("x.CO_e.o")),
                                        conditionalPanel("input.doMonteCarlo",column(4,"Standard Deviation:",verbatimTextOutput("x.CO_e.o.sd")))),
                               fluidRow(column(4,"8-hour total weight average (TWA) exposure:",verbatimTextOutput("TWA8Hours")),

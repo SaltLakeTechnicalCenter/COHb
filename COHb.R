@@ -56,15 +56,26 @@ VA <- function(AL,PB) {
 SS.dat = c(0, 1, 2, 3, 4)
 XCOHb.dat = c(0.0075, 0.02, 0.05, 0.1, 0.2)
 cigs.dat = c(0, 6, 20, 40, 67)
+steadyState.dat = c(3.9, 12.0, 32.5, 69.8, 158.1)*ppm
 XCOHb.0_s <- function(SS) {
   SS = ifelse(SS<0, 0, SS)
   SS = ifelse(SS>4, 4, SS)
   approx(SS.dat,XCOHb.dat,SS)$y
 }
+steadyState_s <- function(SS) {
+  SS = ifelse(SS<0, 0, SS)
+  SS = ifelse(SS>4, 4, SS)
+  approx(SS.dat,steadyState.dat,SS)$y
+}
 XCOHb.0_c <- function(cigs) {
   cigs = ifelse(cigs<0, 0, cigs)
   cigs = ifelse(cigs>67, 67, cigs)
   approx(cigs.dat,XCOHb.dat,cigs)$y
+}
+steadyState_c <- function(cigs) {
+  cigs = ifelse(cigs<0, 0, cigs)
+  cigs = ifelse(cigs>67, 67, cigs)
+  approx(cigs.dat,steadyState.dat,cigs)$y
 }
 
 # constitutive relations

@@ -118,12 +118,46 @@ server <- function(input, output, session) {
   x.O2_e.sd = reactive(input$x.O2_e.sd*percent)
   x.O2_e.MC = reactive(rnorm(n(),x.O2_e(),x.O2_e.sd()))
   # CO exposure from smoking (ppm):
-  x.CO_e.s = reactive(input$x.CO_e.s*ppm)
+  x.CO_e.s = reactive({
+    if (input$fhs_e_method=='cigarettes') steadyState_c(cigs=cigarettes_e()*960*minute/t_e())
+    else if (input$fhs_e_method=='percent') {
+      if (input$SS_method=='cigarettes') steadyState_c(cigs=cigarettes()*smoked_e())
+      else if (input$SS_method=='status') steadyState_s(SS=SS()*smoked_e())
+      # ERROR message intentional here if attempting to find x.CO_e.s from a known ppm for Initial COHb in blood.
+    }
+    else if (input$fhs_e_method=='ppm') input$x.CO_e.s*ppm
+    })
+  output$x.CO_e.s = renderPrint(cat("x.CO_e.s =",x.CO_e.s()/ppm,"ppm"))
   x.CO_e.s.sd = reactive(input$x.CO_e.s.sd*ppm)
-  x.CO_e.s.MC = reactive(rnorm(n(),x.CO_e.s(),x.CO_e.s.sd()))
+  x.CO_e.s.MC = reactive({
+    if (input$fhs_e_method=='cigarettes') steadyState_c(cigs=cigarettes_e.MC()*960*minute/t_e.MC())
+    else if (input$fhs_e_method=='percent') {
+      if (input$SS_method=='cigarettes') steadyState_c(cigs=cigarettes.MC()*smoked_e.MC())
+      else if (input$SS_method=='status') steadyState_s(SS=SS.MC()*smoked_e.MC())
+    }
+    else if (input$fhs_e_method=='ppm') rnorm(n(),x.CO_e.s(),x.CO_e.s.sd())
+    })
   # Number of Monte Carlo simulations
   n = reactive(input$n)
+  # Exposure to second hand smoke (minutes):
+  shs_e.time = reactive(input$shs_e.time*minute)
+  shs_e.time.sd = reactive(input$shs_e.time.sd*minute)
+  # Exposure to second hand smoke (%):
+  shs_e.percent = reactive(input$shs_e.percent*percent)
+  shs_e.percent.sd = reactive(input$shs_e.percent.sd*percent)
+  # Exposure to second hand smoke (ppm):
+  shs_e.ppm = reactive(input$shs_e.ppm*ppm)
+  shs_e.ppm.sd = reactive(input$shs_e.ppm.sd*ppm)
+  # Cigarettes smoked during exposure:
+  cigarettes_e = reactive(input$cigarettes_e)
+  cigarettes_e.sd = reactive(input$cigarettes_e.sd)
+  cigarettes_e.MC = reactive(rnorm(n(),cigarettes_e(),cigarettes_e.sd()))
+  # Fraction of exposure smoked (%):
+  smoked_e = reactive(input$smoked_e*percent)
+  smoked_e.sd = reactive(input$smoked_e.sd*percent)
+  smoked_e.MC = reactive(rnorm(n(),smoked_e(),smoked_e.sd()))
   
+
   #========== Calculated Values ==========#
   # Estimated blood volume of employee (liters)
   Vb = reactive(
@@ -143,7 +177,7 @@ server <- function(input, output, session) {
     if (input$smoker){
       if (input$SS_method=='cigarettes') XCOHb.0_c(cigs=cigarettes())
       else if (input$SS_method=='status') XCOHb.0_s(SS=SS())
-      else if (input$SS_method=='ppm') XCOHb.0()
+      else if (input$SS_method=='percent') XCOHb.0()
     }
     else XCOHb.dat[1]
   )
@@ -152,7 +186,7 @@ server <- function(input, output, session) {
     if (input$smoker){
       if (input$SS_method=='cigarettes') XCOHb.0_c(cigs=cigarettes.MC())
       else if (input$SS_method=='status') XCOHb.0_s(SS=SS.MC())
-      else if (input$SS_method=='ppm') XCOHb.0.MC()
+      else if (input$SS_method=='percent') XCOHb.0.MC()
     }
     else XCOHb.dat[1]
     )
@@ -299,7 +333,6 @@ server <- function(input, output, session) {
   output$t_e.rsd = renderText(t_e.sd()/t_e())
   output$AL_e.rsd = renderText(AL_e.sd()/AL_e())
   output$x.O2_e.rsd = renderText(x.O2_e.sd()/x.O2_e())
-  output$x.CO_e.s.rsd = renderText(x.CO_e.s.sd()/x.CO_e.s())
   output$t_c.rsd = renderText(t_c.sd()/t_c())
   output$AL_c.rsd = renderText(AL_c.sd()/AL_c())
   output$x.O2_c.rsd = renderText(x.O2_c.sd()/x.O2_c())
@@ -310,6 +343,12 @@ server <- function(input, output, session) {
   output$x.CO_t.rsd = renderText(x.CO_t.sd()/x.CO_t())
   output$cigarettes.rsd = renderText(cigarettes.sd()/cigarettes())
   output$XCOHb.0.rsd = renderText(XCOHb.0.sd()/XCOHb.0())
+  output$shs_e.time.rsd = renderText(shs_e.time.sd()/shs_e.time())
+  output$shs_e.percent.rsd = renderText(shs_e.percent.sd()/shs_e.percent())
+  output$shs_e.ppm.rsd = renderText(shs_e.ppm.sd()/shs_e.ppm())
+  output$cigarettes_e.rsd = renderText(cigarettes_e.sd()/cigarettes_e())
+  output$smoked_e.rsd = renderText(smoked_e.sd()/smoked_e())
+  output$x.CO_e.s.rsd = renderText(x.CO_e.s.sd()/x.CO_e.s())
 
   output$abstract = renderPrint(
     cat(
@@ -379,6 +418,8 @@ server <- function(input, output, session) {
       df <- rbind(df, "oxygen therapy activity level" = list(value=input$AL_t, uncertainty=input$AL_t.sd, units=""), stringsAsFactors=FALSE)
       df <- rbind(df, "oxygen therapy oxygen level" = list(value=input$x.O2_t, uncertainty=input$x.O2_t.sd, units="%"), stringsAsFactors=FALSE)
       df <- rbind(df, "oxygen therapy carbon monoxide level" = list(value=input$x.CO_t, uncertainty=input$x.CO_t.sd, units="ppm"), stringsAsFactors=FALSE)
+      df <- rbind(df, "cigarettes smoked during exposure" = list(value=input$cigarettes_e, uncertainty=input$cigarettes_e.sd, units=""), stringsAsFactors=FALSE)
+      df <- rbind(df, "fraction of exposure smoked" = list(value=input$smoked_e, uncertainty=input$smoked_e.sd, units="%"), stringsAsFactors=FALSE)
       write.csv(df, file)
     }
   )
@@ -438,6 +479,10 @@ server <- function(input, output, session) {
         if ('oxygen therapy oxygen level' %in% row.names(tmp)) updateTextInput(session, inputId = "x.O2_t.sd", value = tmp["oxygen therapy oxygen level","uncertainty"])
         if ('oxygen therapy carbon monoxide level' %in% row.names(tmp)) updateTextInput(session, inputId = "x.CO_t", value = tmp["oxygen therapy carbon monoxide level","value"])
         if ('oxygen therapy carbon monoxide level' %in% row.names(tmp)) updateTextInput(session, inputId = "x.CO_t.sd", value = tmp["oxygen therapy carbon monoxide level","uncertainty"])
+        if ('cigarettes smoked during exposure' %in% row.names(tmp)) updateTextInput(session, inputId = "cigarettes_e", value = tmp["cigarettes smoked during exposure","value"])
+        if ('cigarettes smoked during exposure' %in% row.names(tmp)) updateTextInput(session, inputId = "cigarettes_e.sd", value = tmp["cigarettes smoked during exposure","uncertainty"])
+        if ('fraction of exposure smoked' %in% row.names(tmp)) updateTextInput(session, inputId = "smoked_e", value = tmp["fraction of exposure smoked","value"])
+        if ('fraction of exposure smoked' %in% row.names(tmp)) updateTextInput(session, inputId = "smoked_e.sd", value = tmp["fraction of exposure smoked","uncertainty"])
         #tmp
       },
       error = function(e) {stop(safeError(e))}
@@ -552,6 +597,7 @@ server <- function(input, output, session) {
           updateSelectInput(session, inputId = "Hb_method", selected = "blood")
           updateSelectInput(session, inputId = "SS_method", selected = "status")
           updateSelectInput(session, inputId = "smoker", selected = "TRUE")
+          updateSelectInput(session, inputId = "fhs_e_method", selected = "ppm")
           close(con)
       },
       error = function(e) {stop(safeError(e))}
