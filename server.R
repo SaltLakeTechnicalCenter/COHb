@@ -117,45 +117,71 @@ server <- function(input, output, session) {
   x.O2_e = reactive(input$x.O2_e*percent)
   x.O2_e.sd = reactive(input$x.O2_e.sd*percent)
   x.O2_e.MC = reactive(rnorm(n(),x.O2_e(),x.O2_e.sd()))
-  # CO exposure from smoking (ppm):
-  x.CO_e.s = reactive({
-    if (input$fhs_e_method=='cigarettes') steadyState_c(cigs=cigarettes_e()*960*minute/t_e())
-    else if (input$fhs_e_method=='percent') {
-      if (input$SS_method=='cigarettes') steadyState_c(cigs=cigarettes()*smoked_e())
-      else if (input$SS_method=='status') steadyState_s(SS=SS()*smoked_e())
-      # ERROR message intentional here if attempting to find x.CO_e.s from a known ppm for Initial COHb in blood.
+  # CO exposure from first hand smoke (ppm):
+  x.CO_e.fhs = reactive({
+    if (input$smoker){
+      if (input$fhs_e_method=='cigarettes') steadyState_c(cigs=fhs_e.cigarettes()*960*minute/t_e())
+      else if (input$fhs_e_method=='percent') {
+        if (input$SS_method=='cigarettes') steadyState_c(cigs=cigarettes()*fhs_e.percent())
+        else if (input$SS_method=='status') steadyState_s(SS=SS()*fhs_e.percent())
+        # ERROR message intentional here if attempting to find x.CO_e.fhs from a known ppm for Initial COHb in blood.
+      }
+      else if (input$fhs_e_method=='ppm') input$fhs_e.ppm*ppm
     }
-    else if (input$fhs_e_method=='ppm') input$x.CO_e.s*ppm
-    })
-  output$x.CO_e.s = renderPrint(cat("x.CO_e.s =",x.CO_e.s()/ppm,"ppm"))
-  x.CO_e.s.sd = reactive(input$x.CO_e.s.sd*ppm)
-  x.CO_e.s.MC = reactive({
-    if (input$fhs_e_method=='cigarettes') steadyState_c(cigs=cigarettes_e.MC()*960*minute/t_e.MC())
+    else steadyState_c(cigs=0)
+  })
+  output$x.CO_e.fhs = renderPrint(cat("x.CO_e.fhs =",x.CO_e.fhs()/ppm,"ppm"))
+  x.CO_e.fhs.sd = reactive(input$fhs_e.ppm.sd*ppm)
+  x.CO_e.fhs.MC = reactive({
+    if (input$fhs_e_method=='cigarettes') steadyState_c(cigs=fhs_e.cigarettes.MC()*960*minute/t_e.MC())
     else if (input$fhs_e_method=='percent') {
-      if (input$SS_method=='cigarettes') steadyState_c(cigs=cigarettes.MC()*smoked_e.MC())
-      else if (input$SS_method=='status') steadyState_s(SS=SS.MC()*smoked_e.MC())
+      if (input$SS_method=='cigarettes') steadyState_c(cigs=cigarettes.MC()*fhs_e.percent.MC())
+      else if (input$SS_method=='status') steadyState_s(SS=SS.MC()*fhs_e.percent.MC())
     }
-    else if (input$fhs_e_method=='ppm') rnorm(n(),x.CO_e.s(),x.CO_e.s.sd())
+    else if (input$fhs_e_method=='ppm') rnorm(n(),x.CO_e.fhs(),x.CO_e.fhs.sd())
     })
+  output$x.CO_e.fhs.sd = renderPrint(cat(sd(x.CO_e.fhs.MC())/ppm,"ppm"))
+  # CO exposure from second hand smoke (ppm):
+  x.CO_e.shs = reactive({
+    if (input$shs_e){
+      if (input$shs_e_method=='time') steadyState_s(SS=1)*shs_e.time()/t_e()
+      else if (input$shs_e_method=='percent') steadyState_s(SS=1)*shs_e.percent()
+      else if (input$shs_e_method=='ppm') input$shs_e.ppm*ppm  # I think this needs to be changed to shs_e.ppm()
+    }
+    else 0
+    })
+  output$x.CO_e.shs = renderPrint(cat("x.CO_e.shs =",x.CO_e.shs()/ppm,"ppm"))
+  x.CO_e.shs.MC = reactive({
+    if (input$shs_e){
+      if (input$shs_e_method=='time') steadyState_s(SS=1)*shs_e.time.MC()/t_e.MC()
+      else if (input$shs_e_method=='percent') steadyState_s(SS=1)*shs_e.percent.MC()
+      else if (input$shs_e_method=='ppm') rnorm(n(),x.CO_e.shs(),shs_e.ppm.sd())
+    }
+    else 0*rnorm(n(),x.CO_e.shs(),shs_e.ppm.sd())
+  })
+  output$x.CO_e.shs.sd = renderPrint(cat(sd(x.CO_e.shs.MC())/ppm,"ppm"))
   # Number of Monte Carlo simulations
   n = reactive(input$n)
   # Exposure to second hand smoke (minutes):
   shs_e.time = reactive(input$shs_e.time*minute)
   shs_e.time.sd = reactive(input$shs_e.time.sd*minute)
+  shs_e.time.MC = reactive(rnorm(n(),shs_e.time(),shs_e.time.sd()))
   # Exposure to second hand smoke (%):
   shs_e.percent = reactive(input$shs_e.percent*percent)
   shs_e.percent.sd = reactive(input$shs_e.percent.sd*percent)
+  shs_e.percent.MC = reactive(rnorm(n(),shs_e.percent(),shs_e.percent.sd()))
   # Exposure to second hand smoke (ppm):
   shs_e.ppm = reactive(input$shs_e.ppm*ppm)
   shs_e.ppm.sd = reactive(input$shs_e.ppm.sd*ppm)
+  shs_e.percent.MC = reactive(rnorm(n(),shs_e.percent(),shs_e.percent.sd()))
   # Cigarettes smoked during exposure:
-  cigarettes_e = reactive(input$cigarettes_e)
-  cigarettes_e.sd = reactive(input$cigarettes_e.sd)
-  cigarettes_e.MC = reactive(rnorm(n(),cigarettes_e(),cigarettes_e.sd()))
+  fhs_e.cigarettes = reactive(input$fhs_e.cigarettes)
+  fhs_e.cigarettes.sd = reactive(input$fhs_e.cigarettes.sd)
+  fhs_e.cigarettes.MC = reactive(rnorm(n(),fhs_e.cigarettes(),fhs_e.cigarettes.sd()))
   # Fraction of exposure smoked (%):
-  smoked_e = reactive(input$smoked_e*percent)
-  smoked_e.sd = reactive(input$smoked_e.sd*percent)
-  smoked_e.MC = reactive(rnorm(n(),smoked_e(),smoked_e.sd()))
+  fhs_e.percent = reactive(input$fhs_e.percent*percent)
+  fhs_e.percent.sd = reactive(input$fhs_e.percent.sd*percent)
+  fhs_e.percent.MC = reactive(rnorm(n(),fhs_e.percent(),fhs_e.percent.sd()))
   
 
   #========== Calculated Values ==========#
@@ -295,11 +321,11 @@ server <- function(input, output, session) {
   x.CO_e = reactive(findMeanCO(t=t_e(),COHb.i=COHb.A(),COHb.f=COHb.B(),Vb=Vb(),beta=beta_e(),Hb=Hb(),PB=PB(),x.O2=x.O2_e()))
   output$x.CO_e = renderPrint(cat("x.CO_e =",x.CO_e()/ppm,"ppm"))
   x.CO_e.MC = reactive(findMeanCO(t=t_e.MC(),COHb.i=COHb.A.MC(),COHb.f=COHb.B.MC(),Vb=Vb.MC(),beta=beta_e.MC(),Hb=Hb.MC(),PB=PB.MC(),x.O2=x.O2_e.MC()))
-  output$x.CO_e.sd = renderPrint(cat(sd(x.CO_e.MC())/ppm,"ppm"))
+  output$x.CO_e.fhsd = renderPrint(cat(sd(x.CO_e.MC())/ppm,"ppm"))
   #
-  x.CO_e.o = reactive(x.CO_e()-x.CO_e.s())
+  x.CO_e.o = reactive(x.CO_e()-x.CO_e.fhs()-x.CO_e.shs())
   output$x.CO_e.o = renderPrint(cat("x.CO_e.o =",x.CO_e.o()/ppm,"ppm"))
-  x.CO_e.o.MC = reactive(x.CO_e.MC()-x.CO_e.s.MC())
+  x.CO_e.o.MC = reactive(x.CO_e.MC()-x.CO_e.fhs.MC()-x.CO_e.shs.MC())
   output$x.CO_e.o.sd = renderPrint(cat(sd(x.CO_e.o.MC())/ppm,"ppm"))
   # Averaging period
   AveragingPeriod8h = reactive(ifelse(t_e() > 480*minute, t_e(), 480*minute))
@@ -346,13 +372,13 @@ server <- function(input, output, session) {
   output$shs_e.time.rsd = renderText(shs_e.time.sd()/shs_e.time())
   output$shs_e.percent.rsd = renderText(shs_e.percent.sd()/shs_e.percent())
   output$shs_e.ppm.rsd = renderText(shs_e.ppm.sd()/shs_e.ppm())
-  output$cigarettes_e.rsd = renderText(cigarettes_e.sd()/cigarettes_e())
-  output$smoked_e.rsd = renderText(smoked_e.sd()/smoked_e())
-  output$x.CO_e.s.rsd = renderText(x.CO_e.s.sd()/x.CO_e.s())
+  output$fhs_e.cigarettes.rsd = renderText(fhs_e.cigarettes.sd()/fhs_e.cigarettes())
+  output$fhs_e.percent.rsd = renderText(fhs_e.percent.sd()/fhs_e.percent())
+  output$x.CO_e.fhs.rsd = renderText(x.CO_e.fhs.sd()/x.CO_e.fhs())
 
   output$abstract = renderPrint(
     cat(
-      "Employee",input$name,"(calculation ",input$ID,
+      "Employee",input$name,"(sample ",input$ID,
       ") was subjected to a calculated mean carbon monoxide occupational exposure of",round(x.CO_e.o()/ppm,1),
       "ppm (SAE =",SAE.exposure(),
       "%) for a duration of",t_e()/minute,
@@ -408,8 +434,9 @@ server <- function(input, output, session) {
       df <- rbind(df, "smoker status method" = list(value=NA, uncertainty=NA, units=input$SS_method), stringsAsFactors=FALSE)
       df <- rbind(df, "cigarettes" = list(value=input$cigarettes, uncertainty=input$cigarettes.sd, units=""), stringsAsFactors=FALSE)
       df <- rbind(df, "smoker status" = list(value=input$SS, uncertainty=SS.sd(), units=""), stringsAsFactors=FALSE)
+      df <- rbind(df, "initial COHb in blood" = list(value=input$XCOHb.0, uncertainty=input$XCOHb.0.sd, units="%"), stringsAsFactors=FALSE)
       df <- rbind(df, "exposure oxygen level" = list(value=input$x.O2_e, uncertainty=input$x.O2_e.sd, units="%"), stringsAsFactors=FALSE)
-      df <- rbind(df, "CO exposure from smoking" = list(value=input$x.CO_e.s, uncertainty=input$x.CO_e.s.sd, units="ppm"), stringsAsFactors=FALSE)
+      df <- rbind(df, "CO exposure from smoking" = list(value=input$fhs_e.ppm, uncertainty=input$fhs_e.ppm.sd, units="ppm"), stringsAsFactors=FALSE)
       df <- rbind(df, "clearance duration" = list(value=input$t_c, uncertainty=input$t_c.sd, units="minute"), stringsAsFactors=FALSE)
       df <- rbind(df, "clearance activity level" = list(value=input$AL_c, uncertainty=input$AL_c.sd, units=""), stringsAsFactors=FALSE)
       df <- rbind(df, "clearance oxygen level" = list(value=input$x.O2_c, uncertainty=input$x.O2_c.sd, units="%"), stringsAsFactors=FALSE)
@@ -418,8 +445,13 @@ server <- function(input, output, session) {
       df <- rbind(df, "oxygen therapy activity level" = list(value=input$AL_t, uncertainty=input$AL_t.sd, units=""), stringsAsFactors=FALSE)
       df <- rbind(df, "oxygen therapy oxygen level" = list(value=input$x.O2_t, uncertainty=input$x.O2_t.sd, units="%"), stringsAsFactors=FALSE)
       df <- rbind(df, "oxygen therapy carbon monoxide level" = list(value=input$x.CO_t, uncertainty=input$x.CO_t.sd, units="ppm"), stringsAsFactors=FALSE)
-      df <- rbind(df, "cigarettes smoked during exposure" = list(value=input$cigarettes_e, uncertainty=input$cigarettes_e.sd, units=""), stringsAsFactors=FALSE)
-      df <- rbind(df, "fraction of exposure smoked" = list(value=input$smoked_e, uncertainty=input$smoked_e.sd, units="%"), stringsAsFactors=FALSE)
+      df <- rbind(df, "cigarettes smoked during exposure" = list(value=input$fhs_e.cigarettes, uncertainty=input$fhs_e.cigarettes.sd, units=""), stringsAsFactors=FALSE)
+      df <- rbind(df, "fraction of exposure smoked" = list(value=input$fhs_e.percent, uncertainty=input$fhs_e.percent.sd, units="%"), stringsAsFactors=FALSE)
+      df <- rbind(df, "second hand smoker exposure" = list(value=input$shs_e, uncertainty=NA, units=NA), stringsAsFactors=FALSE)
+      df <- rbind(df, "second hand smoke exposure method" = list(value=NA, uncertainty=NA, units=input$shs_e_method), stringsAsFactors=FALSE)
+      df <- rbind(df, "second hand smoke exposure time" = list(value=input$shs_e.time, uncertainty=input$shs_e.time.sd, units="%"), stringsAsFactors=FALSE)
+      df <- rbind(df, "second hand smoke exposure percent" = list(value=input$shs_e.percent, uncertainty=input$shs_e.percent.sd, units="%"), stringsAsFactors=FALSE)
+      df <- rbind(df, "second hand smoke exposure ppm" = list(value=input$shs_e.ppm, uncertainty=input$shs_e.ppm.sd, units="%"), stringsAsFactors=FALSE)
       write.csv(df, file)
     }
   )
@@ -459,10 +491,12 @@ server <- function(input, output, session) {
         if ('cigarettes' %in% row.names(tmp)) updateTextInput(session, inputId = "cigarettes.sd", value = tmp["cigarettes","uncertainty"])
         if ('smoker status' %in% row.names(tmp)) updateTextInput(session, inputId = "SS", value = tmp["smoker status","value"])
         if ('smoker status' %in% row.names(tmp)) updateTextInput(session, inputId = "SS.sd", value = tmp["smoker status","uncertainty"])
+        if ('initial COHb in blood' %in% row.names(tmp)) updateTextInput(session, inputId = "XCOHb.0", value = tmp["initial COHb in blood","value"])
+        if ('initial COHb in blood' %in% row.names(tmp)) updateTextInput(session, inputId = "XCOHb.0.sd", value = tmp["initial COHb in blood","uncertainty"])
         if ('exposure oxygen level' %in% row.names(tmp)) updateTextInput(session, inputId = "x.O2_e", value = tmp["exposure oxygen level","value"])
         if ('exposure oxygen level' %in% row.names(tmp)) updateTextInput(session, inputId = "x.O2_e.sd", value = tmp["exposure oxygen level","uncertainty"])
-        if ('CO exposure from smoking' %in% row.names(tmp)) updateTextInput(session, inputId = "x.CO_e.s", value = tmp["CO exposure from smoking","value"])
-        if ('CO exposure from smoking' %in% row.names(tmp)) updateTextInput(session, inputId = "x.CO_e.s.sd", value = tmp["CO exposure from smoking","uncertainty"])
+        if ('CO exposure from smoking' %in% row.names(tmp)) updateTextInput(session, inputId = "fhs_e.ppm", value = tmp["CO exposure from smoking","value"])
+        if ('CO exposure from smoking' %in% row.names(tmp)) updateTextInput(session, inputId = "fhs_e.ppm.sd", value = tmp["CO exposure from smoking","uncertainty"])
         if ('clearance duration' %in% row.names(tmp)) updateTextInput(session, inputId = "t_c", value = tmp["clearance duration","value"])
         if ('clearance duration' %in% row.names(tmp)) updateTextInput(session, inputId = "t_c.sd", value = tmp["clearance duration","uncertainty"])
         if ('clearance activity level' %in% row.names(tmp)) updateTextInput(session, inputId = "AL_c", value = tmp["clearance activity level","value"])
@@ -479,11 +513,18 @@ server <- function(input, output, session) {
         if ('oxygen therapy oxygen level' %in% row.names(tmp)) updateTextInput(session, inputId = "x.O2_t.sd", value = tmp["oxygen therapy oxygen level","uncertainty"])
         if ('oxygen therapy carbon monoxide level' %in% row.names(tmp)) updateTextInput(session, inputId = "x.CO_t", value = tmp["oxygen therapy carbon monoxide level","value"])
         if ('oxygen therapy carbon monoxide level' %in% row.names(tmp)) updateTextInput(session, inputId = "x.CO_t.sd", value = tmp["oxygen therapy carbon monoxide level","uncertainty"])
-        if ('cigarettes smoked during exposure' %in% row.names(tmp)) updateTextInput(session, inputId = "cigarettes_e", value = tmp["cigarettes smoked during exposure","value"])
-        if ('cigarettes smoked during exposure' %in% row.names(tmp)) updateTextInput(session, inputId = "cigarettes_e.sd", value = tmp["cigarettes smoked during exposure","uncertainty"])
-        if ('fraction of exposure smoked' %in% row.names(tmp)) updateTextInput(session, inputId = "smoked_e", value = tmp["fraction of exposure smoked","value"])
-        if ('fraction of exposure smoked' %in% row.names(tmp)) updateTextInput(session, inputId = "smoked_e.sd", value = tmp["fraction of exposure smoked","uncertainty"])
-        #tmp
+        if ('cigarettes smoked during exposure' %in% row.names(tmp)) updateTextInput(session, inputId = "fhs_e.cigarettes", value = tmp["cigarettes smoked during exposure","value"])
+        if ('cigarettes smoked during exposure' %in% row.names(tmp)) updateTextInput(session, inputId = "fhs_e.cigarettes.sd", value = tmp["cigarettes smoked during exposure","uncertainty"])
+        if ('fraction of exposure smoked' %in% row.names(tmp)) updateTextInput(session, inputId = "fhs_e.percent", value = tmp["fraction of exposure smoked","value"])
+        if ('fraction of exposure smoked' %in% row.names(tmp)) updateTextInput(session, inputId = "fhs_e.percent.sd", value = tmp["fraction of exposure smoked","uncertainty"])
+        if ('second hand smoker exposure' %in% row.names(tmp)) updateCheckboxInput(session, inputId = "shs_e", value = tmp["second hand smoker exposure","value"])
+        if ('second hand smoke exposure method' %in% row.names(tmp)) updateTextInput(session, inputId = "shs_e_method", value = tmp["second hand smoke exposure method","units"])
+        if ('second hand smoke exposure time' %in% row.names(tmp)) updateTextInput(session, inputId = "shs_e.time", value = tmp["second hand smoke exposure time","value"])
+        if ('second hand smoke exposure time' %in% row.names(tmp)) updateTextInput(session, inputId = "shs_e.time.sd", value = tmp["second hand smoke exposure time","uncertainty"])
+        if ('second hand smoke exposure percent' %in% row.names(tmp)) updateTextInput(session, inputId = "shs_e.percent", value = tmp["second hand smoke exposure percent","value"])
+        if ('second hand smoke exposure percent' %in% row.names(tmp)) updateTextInput(session, inputId = "shs_e.percent.sd", value = tmp["second hand smoke exposure percent","uncertainty"])
+        if ('second hand smoke exposure ppm' %in% row.names(tmp)) updateTextInput(session, inputId = "shs_e.ppm", value = tmp["second hand smoke exposure ppm","value"])
+        if ('second hand smoke exposure ppm' %in% row.names(tmp)) updateTextInput(session, inputId = "shs_e.ppm.sd", value = tmp["second hand smoke exposure ppm","uncertainty"])
       },
       error = function(e) {stop(safeError(e))}
     )
@@ -531,6 +572,9 @@ server <- function(input, output, session) {
           SS.sd = SS*SS.rsd
           updateTextInput(session, inputId = "SS", value = paste(SS))
           updateTextInput(session, inputId = "SS.sd", value = paste(SS.sd))
+          if (SS==0) updateCheckboxInput(session, inputId = "smoker", value = 0)
+          else updateCheckboxInput(session, inputId = "smoker", value = 1)
+          updateSelectInput(session, inputId = "SS_method", selected = "status")
         temp = scan(file=con, nlines=1, what="numeric", sep=",", quiet=TRUE)                                 #Activity Level during exposure: AL_e
           AL_e = as.numeric(temp[1])
           AL_e.rsd = as.numeric(temp[2])
@@ -559,12 +603,24 @@ server <- function(input, output, session) {
           PB.sd = PB*PB.rsd
           updateTextInput(session, inputId = "PB", value = paste(PB))
           updateTextInput(session, inputId = "PB.sd", value = paste(PB.sd))
-        temp = scan(file=con, nlines=1, what="numeric", sep=",", quiet=TRUE)                                 #CO exposure due to smoking on the job (ppm): x.CO_e.s
-          x.CO_e.s = as.numeric(temp[1])
-          x.CO_e.s.rsd = as.numeric(temp[2])
-          x.CO_e.s.sd = x.CO_e.s*x.CO_e.s.rsd
-          updateTextInput(session, inputId = "x.CO_e.s", value = paste(x.CO_e.s))
-          updateTextInput(session, inputId = "x.CO_e.s.sd", value = paste(x.CO_e.s.sd))
+        temp = scan(file=con, nlines=1, what="numeric", sep=",", quiet=TRUE)                                 #CO exposure due to smoking on the job (ppm): x.CO_e.fhs
+          x.CO_e.fhs = as.numeric(temp[1])
+          x.CO_e.fhs.rsd = as.numeric(temp[2])
+          x.CO_e.fhs.sd = x.CO_e.fhs*x.CO_e.fhs.rsd
+          updateCheckboxInput(session, inputId = "shs_e", value = 0)
+          if (SS==0) { #second hand smoke
+            updateTextInput(session, inputId = "shs_e.ppm", value = paste(x.CO_e.fhs))
+            updateTextInput(session, inputId = "shs_e.ppm.sd", value = paste(x.CO_e.fhs.sd))
+            if (x.CO_e.fhs!=0) {
+              updateCheckboxInput(session, inputId = "shs_e", value = 1)
+              updateSelectInput(session, inputId = "shs_e_method", selected = "ppm")
+            }
+          }
+          else {
+            updateTextInput(session, inputId = "fhs_e.ppm", value = paste(x.CO_e.fhs))
+            updateTextInput(session, inputId = "fhs_e.ppm.sd", value = paste(x.CO_e.fhs.sd))
+            updateSelectInput(session, inputId = "fhs_e_method", selected = "ppm")
+          }
         temp = scan(file=con, nlines=1, what="numeric", sep=",", quiet=TRUE)                                 #Carbon Monoxide Level during Clearance (ppm): x.CO_c
           x.CO_c = as.numeric(temp[1])
           x.CO_c.rsd = as.numeric(temp[2])
@@ -595,9 +651,9 @@ server <- function(input, output, session) {
           updateSelectInput(session, inputId = "PB_method", selected = "pressure")
           updateSelectInput(session, inputId = "COHb_method", selected = "breath")
           updateSelectInput(session, inputId = "Hb_method", selected = "blood")
-          updateSelectInput(session, inputId = "SS_method", selected = "status")
-          updateSelectInput(session, inputId = "smoker", selected = "TRUE")
-          updateSelectInput(session, inputId = "fhs_e_method", selected = "ppm")
+          
+          
+          
           close(con)
       },
       error = function(e) {stop(safeError(e))}
