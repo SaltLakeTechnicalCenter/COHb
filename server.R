@@ -389,12 +389,20 @@ server <- function(input, output, session) {
   AL_t.sd = reactive(input$AL_t.sd)
   AL_t.MC = reactive(rnorm(n(),AL_t(),AL_t.sd()))
   output$AL_t.rsd = renderText(AL_t.sd()/AL_t())
-  # Oxygen Therapy duration (minutes)
-  x.O2_t = reactive(input$x.O2_t*percent)
+  # Oxygen Therapy oxygen level (% oxygen)
+  x.O2_t = reactive(
+    if (input$OT_method=='Oxygen level') input$x.O2_t*percent
+    else if (input$OT_method=='Nasal Cannula (NC)') approx(c(1,6),c(22,44),input$NC.lpm)$y*percent
+    else if (input$OT_method=='Simple Face Mask (SFM)') approx(c(8,12),c(40,60),input$SFM.lpm)$y*percent
+    else if (input$OT_method=='Non-Rebreather (NRB)') approx(c(10,15),c(80,100),input$NRB.lpm)$y*percent
+    else if (input$OT_method=='Bag-valve-mask (BVM)') approx(c(10,15),c(60,100),input$BVM.lpm)$y*percent
+  )
+  output$x.O2_t = output$XCOHb.B.sd = renderPrint(cat(x.O2_t()/percent,"%"))
+  #x.O2_t = reactive(input$x.O2_t*percent)
   x.O2_t.sd = reactive(input$x.O2_t.sd*percent)
   x.O2_t.MC = reactive(rnorm(n(),x.O2_t(),x.O2_t.sd()))
   output$x.O2_t.rsd = renderText(x.O2_t.sd()/x.O2_t())
-  # Oxygen Therapy oxygen level (% oxygen)
+  # Oxygen Therapy carbon monoxide level (ppm)
   x.CO_t = reactive(input$x.CO_t*ppm)
   x.CO_t.sd = reactive(input$x.CO_t.sd*ppm)
   x.CO_t.MC = reactive(rnorm(n(),x.CO_t(),x.CO_t.sd()))
@@ -547,6 +555,11 @@ server <- function(input, output, session) {
       # Oxygen Therapy
       df <- rbind(df, "oxygen therapy duration" = list(value=input$t_t, uncertainty=input$t_t.sd, units="minute"), stringsAsFactors=FALSE)
       df <- rbind(df, "oxygen therapy activity level" = list(value=input$AL_t, uncertainty=input$AL_t.sd, units=""), stringsAsFactors=FALSE)
+      df <- rbind(df, "oxygen therapy method" = list(value=NA, uncertainty=NA, units=input$OT_method), stringsAsFactors=FALSE)
+      df <- rbind(df, "Nasal Cannula (NC)" = list(value=input$NC.lpm, uncertainty=0, units="liter/minute"), stringsAsFactors=FALSE)
+      df <- rbind(df, "Simple Face Mask (SFM)" = list(value=input$SFM.lpm, uncertainty=0, units="liter/minute"), stringsAsFactors=FALSE)
+      df <- rbind(df, "Non-Rebreather (NRB)" = list(value=input$NRB.lpm, uncertainty=0, units="liter/minute"), stringsAsFactors=FALSE)
+      df <- rbind(df, "Bag-valve-mask (BVM)" = list(value=input$BVM.lpm, uncertainty=0, units="liter/minute"), stringsAsFactors=FALSE)
       df <- rbind(df, "oxygen therapy oxygen level" = list(value=input$x.O2_t, uncertainty=input$x.O2_t.sd, units="%"), stringsAsFactors=FALSE)
       df <- rbind(df, "oxygen therapy carbon monoxide level" = list(value=input$x.CO_t, uncertainty=input$x.CO_t.sd, units="ppm"), stringsAsFactors=FALSE)
       write.csv(df, file)
@@ -638,6 +651,11 @@ server <- function(input, output, session) {
         if ('oxygen therapy duration' %in% row.names(tmp)) updateTextInput(session, inputId = "t_t.sd", value = tmp["oxygen therapy duration","uncertainty"])
         if ('oxygen therapy activity level' %in% row.names(tmp)) updateTextInput(session, inputId = "AL_t", value = tmp["oxygen therapy activity level","value"])
         if ('oxygen therapy activity level' %in% row.names(tmp)) updateTextInput(session, inputId = "AL_t.sd", value = tmp["oxygen therapy activity level","uncertainty"])
+        if ('oxygen therapy method' %in% row.names(tmp)) updateTextInput(session, inputId = "OT_method", value = tmp["oxygen therapy method","units"])
+        if ('Nasal Cannula (NC)' %in% row.names(tmp)) updateTextInput(session, inputId = "NC.lpm", value = tmp["Nasal Cannula (NC)","value"])
+        if ('Simple Face Mask (SFM)' %in% row.names(tmp)) updateTextInput(session, inputId = "SFM.lpm", value = tmp["Simple Face Mask (SFM)","value"])
+        if ('Non-Rebreather (NRB)' %in% row.names(tmp)) updateTextInput(session, inputId = "NRB.lpm", value = tmp["Non-Rebreather (NRB)","value"])
+        if ('Bag-valve-mask (BVM)' %in% row.names(tmp)) updateTextInput(session, inputId = "BVM.lpm", value = tmp["Bag-valve-mask (BVM)","value"])
         if ('oxygen therapy oxygen level' %in% row.names(tmp)) updateTextInput(session, inputId = "x.O2_t", value = tmp["oxygen therapy oxygen level","value"])
         if ('oxygen therapy oxygen level' %in% row.names(tmp)) updateTextInput(session, inputId = "x.O2_t.sd", value = tmp["oxygen therapy oxygen level","uncertainty"])
         if ('oxygen therapy carbon monoxide level' %in% row.names(tmp)) updateTextInput(session, inputId = "x.CO_t", value = tmp["oxygen therapy carbon monoxide level","value"])
@@ -785,6 +803,7 @@ server <- function(input, output, session) {
           updateSelectInput(session, inputId = "PB_method", selected = "pressure")
           updateSelectInput(session, inputId = "COHb_method", selected = "breath")
           updateSelectInput(session, inputId = "Hb_method", selected = "blood")
+          updateSelectInput(session, inputId = "OT_method", selected = "Oxygen level")
           close(con)
       },
       error = function(e) {stop(safeError(e))}

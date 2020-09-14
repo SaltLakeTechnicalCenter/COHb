@@ -284,7 +284,15 @@ ui <- fluidPage(
                               )
              ),
              fluidRow(
-               column(4,numericInput("x.O2_t", label = "Oxygen level (% oxygen):", value = 100)),
+               column(4,selectInput("OT_method", label = "Oxygen known from:", c("Nasal Cannula (NC)","Simple Face Mask (SFM)","Non-Rebreather (NRB)","Bag-valve-mask (BVM)","Oxygen level"))),
+               conditionalPanel(condition="input.OT_method=='Nasal Cannula (NC)'",column(4,numericInput("NC.lpm", label = "Flow Rate (LPM):", value = 1))),
+               conditionalPanel(condition="input.OT_method=='Simple Face Mask (SFM)'",column(4,numericInput("SFM.lpm", label = "Flow Rate (LPM):", value = 8))),
+               conditionalPanel(condition="input.OT_method=='Non-Rebreather (NRB)'",column(4,numericInput("NRB.lpm", label = "Flow Rate (LPM):", value = 10))),
+               conditionalPanel(condition="input.OT_method=='Bag-valve-mask (BVM)'",column(4,numericInput("BVM.lpm", label = "Flow Rate (LPM):", value = 10)))
+             ),
+             fluidRow(
+               conditionalPanel(condition="input.OT_method!='Oxygen level'",column(4,"Oxygen level:",verbatimTextOutput("x.O2_t"))),
+               conditionalPanel(condition="input.OT_method=='Oxygen level'",column(4,numericInput("x.O2_t", label = "Oxygen level (% oxygen):", value = 100))),
                column(4,numericInput("x.O2_t.sd", label = "Standard Deviation (% oxygen):", value = 0)),
                conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("x.O2_t.rsd")))
              ),
