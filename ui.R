@@ -6,7 +6,7 @@ ui <- fluidPage(
   tabsetPanel(
     tabPanel("Sample",
              fluidRow(
-               column(4,textInput("ID", label = "Sample Number:", value = "#")),
+               column(4,textInput("ID", label = "Sample Number:", value = "")),
                column(4,selectInput("COHb_method", label = "COHb known from:", c("SpCO","blood","breath")))
                ),
              fluidRow(
@@ -336,13 +336,15 @@ ui <- fluidPage(
              conditionalPanel("input.doMonteCarlo",fluidRow(column(4,numericInput("n", label = "Number of Monte Carlo simulations:", value = 100)))),
              checkboxInput("showRSD", "Show relative standard deviation values", FALSE)
     ),
-    tabPanel("Summary"
+    tabPanel("Summary",
+             #fluidRow(column(2,downloadButton("downloadReport", "Generate Report")))
              #tableOutput("CSVcontents")
+             downloadButton('report','Generate Report')
     )
   ),
   hr(),
   fluidRow(
-    column(2,downloadButton("downloadData", "Download")),
+    column(2,downloadButton("downloadData", "Save File")),
     column(4,fileInput("CSVfile", "Upload CSV",multiple = FALSE,accept = c("text/csv","text/comma-separated-values,text/plain",".csv"))),
     column(4,fileInput("PRNfile", "Upload PRN",multiple = FALSE,accept = c(".prn")))
   ),

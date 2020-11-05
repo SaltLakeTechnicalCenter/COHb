@@ -1,4 +1,5 @@
 source("COHb.R")
+library(knitr)
 server <- function(input, output, session) {
   #================================================== Sample ==================================================#
   # COHb in blood sample (%)
@@ -471,6 +472,16 @@ server <- function(input, output, session) {
     else "?"
   })
   #SAE.ppmCOminutes
+  output$report = downloadHandler(
+    filename = 'myreport.pdf',
+    
+    content = function(file) {
+      out = knit2pdf('input.Rnw', clean = TRUE)
+      file.rename(out, file) # move pdf to file for downloading
+    },
+    
+    contentType = 'application/pdf'
+  )
   #================================================== Abstract ==================================================#
   output$abstract = renderPrint(
     cat(
