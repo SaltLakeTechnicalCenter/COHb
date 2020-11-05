@@ -321,7 +321,12 @@ ui <- fluidPage(
              )
     ),
     tabPanel("Standard",
-             "This is where the user will select the standard to be compared against."
+             fluidRow(column(4,selectInput("ExposureLimit", label = "Occupational Exposure Limit:", c("OSHA PEL","NIOSH REL","custom PEL"))),
+               column(4,
+                      conditionalPanel(condition="input.ExposureLimit!='custom PEL'","TWA:",verbatimTextOutput("OEL")),
+                      conditionalPanel(condition="input.ExposureLimit=='custom PEL'",numericInput("OEL", label = "TWA (ppm):", value = 50))
+               )
+             )
     ),
     tabPanel("Parameters",
              fluidRow(column(4,numericInput("deltaT", label = "Runge–Kutta time step (seconds):", value = 60))),

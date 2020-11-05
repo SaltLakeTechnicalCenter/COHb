@@ -1,8 +1,5 @@
-library(shiny)
 source("COHb.R")
 server <- function(input, output, session) {
-  OEL = 35*ppm
-  OelLabel = "OSHA PEL"
   #================================================== Sample ==================================================#
   # COHb in blood sample (%)
   XCOHb = reactive(input$XCOHb*percent)
@@ -442,6 +439,15 @@ server <- function(input, output, session) {
   output$XCOHb.C = renderPrint(cat("XCOHb.C =",XCOHb.C()/percent,"%"))
   XCOHb.C.MC = reactive(COHb.C.MC()/Hf/Hb.MC())
   output$XCOHb.C.sd = renderPrint(cat(sd(XCOHb.C.MC())/percent,"%"))
+  #================================================== Standard ==================================================#
+  # Occupational Exposure Limit (ppm)
+  OEL = reactive(
+    if (input$ExposureLimit=='custom PEL') input$OEL*ppm
+    else if (input$ExposureLimit=='OSHA PEL') 50*ppm
+    else if (input$ExposureLimit=='NIOSH REL') 35*ppm
+  )
+  OelLabel = reactive(input$ExposureLimit)
+  output$OEL = renderPrint(cat("TWA =",OEL()/(ppm),"ppm"))
   #================================================== Parameters ==================================================#
   # Number of Monte Carlo simulations
   n = reactive(input$n)
@@ -475,9 +481,9 @@ server <- function(input, output, session) {
       "minutes. The carboxyhemoglobin in the employee's blood reached a calculated peak level of",round(XCOHb.B()/percent,1),
       "% at the end of the exposure. The calculated 8-hour total weight average (TWA) exposure is",round(TWA8Hours()/ppm,1),
       "ppm CO (SAE =",SAE.8hTWA(),
-      "%) which is",round(TWA8Hours()/OEL,2),
-      "times the",OelLabel,
-      "of",OEL/ppm,
+      "%) which is",round(TWA8Hours()/OEL(),2),
+      "times the",OelLabel(),
+      "of",OEL()/ppm,
       "ppm."
     )
   )
