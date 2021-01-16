@@ -6,7 +6,7 @@ ui <- fluidPage(
   tabsetPanel(
     tabPanel("Sample",
              fluidRow(
-               column(4,textInput("ID", label = "Sample Number:", value = "")),
+               column(4,textInput("ID", label = "Sample Number:", value = "[Sample Number]")),
                column(4,selectInput("COHb_method", label = "COHb known from:", c("SpCO","blood","breath")))
                ),
              fluidRow(
@@ -37,7 +37,7 @@ ui <- fluidPage(
              )
     ),
     tabPanel("Employee",
-             fluidRow(column(4,textInput("name", label = "Employee Name:")),
+             fluidRow(column(4,textInput("name", label = "Employee Name:", value = "[Employee Name]")),
                       column(4,selectInput("gender", label = "Gender", c("male","female")))
              ),
              fluidRow(
@@ -337,8 +337,14 @@ ui <- fluidPage(
              checkboxInput("showRSD", "Show relative standard deviation values", FALSE)
     ),
     tabPanel("Summary",
-             #fluidRow(column(2,downloadButton("downloadReport", "Generate Report")))
-             #tableOutput("CSVcontents")
+             fluidRow(column(4, textInput("employer", label = "Employeer:", value = "[Employer Name]"))),
+             fluidRow(column(4, textInput("inspectionNumber", label = "Inspection Number:", value = "[Inspection Number]"))),
+             fluidRow(column(4, textInput("complianceOfficer", label = "Compliance Officer:", value = "[Compliance Officer]"))),
+             fluidRow(column(4, textInput("areaOffice", label = "Area:", value = "[Area]"))),
+             fluidRow(column(4, numericInput("region", label = "Region:", value = "0", min = 1, max = 10, step = 1))),
+             #fluidRow(column(4, dateInput("requestDate", label = "Request Date:", value = Sys.Date(), format = "DD the dd of MM yyyy"))),
+             fluidRow(column(4, textInput("requestDate", label = "Request Date:", value = "[Request Date]"))),
+             fluidRow(column(4, textInput("exposureDate", label = "Exposure Date:", value = "[Exposure Date]"))),
              downloadButton('report','Generate Report')
     )
   ),

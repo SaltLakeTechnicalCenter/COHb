@@ -476,7 +476,7 @@ server <- function(input, output, session) {
     filename = 'myreport.pdf',
     
     content = function(file) {
-      out = knit2pdf('input.Rnw', clean = TRUE)
+      out = knit2pdf('reportTemplate.Rnw', clean = TRUE)
       file.rename(out, file) # move pdf to file for downloading
     },
     
