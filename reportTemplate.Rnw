@@ -53,7 +53,7 @@ options(formatR.arrow=TRUE,width=90)
 
 \section*{Abstract}
 
-On \Sexpr{input$requestDate} the Salt Lake Technical Center (SLTC) received a request (sample \Sexpr{input$ID}) from \Sexpr{input$complianceOfficer}, an OSHA compliance officer in the \Sexpr{input$areaOffice} area office of region \Sexpr{input$region}, to conduct a carboxyhemoglobin (COHb) calculation to determine the carbon monoxide exposure to employee \Sexpr{input$name} on the \Sexpr{input$exposureDate}.  The results of the calculation show that employee \Sexpr{input$name} was subjected to a calculated mean carbon monoxide occupational exposure of \Sexpr{round(x.CO_e.o()/ppm,1)} ppm (SAE =\Sexpr{SAE.exposure()}\%) for a duration of \Sexpr{t_e()/minute} minutes (Figure \ref{fig:plot}). The carboxyhemoglobin in the employee's blood reached a calculated peak level of \Sexpr{round(XCOHb.B()/percent,1)}\% at the end of the exposure. The calculated 8-hour total weight average (TWA) exposure is \Sexpr{round(TWA8Hours()/ppm,1)} ppm CO (SAE = \Sexpr{SAE.8hTWA()}\%) which is \Sexpr{round(TWA8Hours()/OEL(),2)} times the \Sexpr{OelLabel()} of \Sexpr{OEL()/ppm} ppm.  The methodology used to perform this calculation is explained in \textcolor{red}{METHOD} and the estimated input parameters reported to the SLTC to perform this calculation are presented in the following sections of this report.
+On \Sexpr{input$requestDate} the Salt Lake Technical Center (SLTC) received a request (sample \Sexpr{input$ID}) from \Sexpr{input$complianceOfficer}, an OSHA compliance officer in the \Sexpr{input$areaOffice} area office of region \Sexpr{input$region}, to conduct a carboxyhemoglobin (COHb) calculation to determine the carbon monoxide exposure to employee \Sexpr{input$name} on the \Sexpr{input$exposureDate}.  The results of the calculation show that employee \Sexpr{input$name} was subjected to a calculated mean carbon monoxide occupational exposure of \Sexpr{round(x.CO_e.o()/ppm,1)} ppm (SAE =\Sexpr{round(SAE.exposure(),1)}\%) for a duration of \Sexpr{round(t_e()/minute)} minutes (Figure \ref{fig:plot}). The carboxyhemoglobin in the employee's blood reached a calculated peak level of \Sexpr{round(XCOHb.B()/percent,1)}\% at the end of the exposure. The calculated 8-hour total weight average (TWA) exposure is \Sexpr{round(TWA8Hours()/ppm)} ppm CO (SAE = \Sexpr{round(SAE.8hTWA(),1)}\%) which is \Sexpr{round(TWA8Hours()/OEL(),2)} times the \Sexpr{OelLabel()} of \Sexpr{round(OEL()/ppm,1)} ppm.  The methodology used to perform this calculation is explained in \textcolor{red}{METHOD} and the estimated input parameters reported to the SLTC to perform this calculation are presented in the following sections of this report.
 
 \begin{figure}[h]
 \centering
@@ -74,24 +74,52 @@ abline(h=XCOHb.B()/percent,lty=3)
 text(t_e()/60,1.02*XCOHb.B()/percent,sprintf("Maximum COHb = %.1f%%", XCOHb.B()/percent))
 text(0,0.96*XCOHb.B()/percent,sprintf("Occupational Exposure = %.1f ppm", x.CO_e.o()/ppm),adj = c(0,0))
 @
-\caption{The concentration of COHb in the employee's blood (\Sexpr{input$name}) increased during the exposure phase (red) to a maximum of \Sexpr{round(XCOHb.B()/percent,1)}\% after \Sexpr{t_e()/minute} minutes then decreases to the measured value of \Sexpr{input$XCOHb}\% at the end of the clearance phase (blue).}
+\caption{The concentration of COHb in the employee's blood increased during the exposure phase (red) to a maximum of \Sexpr{round(XCOHb.B()/percent,1)}\% after \Sexpr{round(t_e()/minute)} minutes then decreases to the measured value of \Sexpr{round(input$XCOHb,1)}\% at the end of the clearance phase (blue).}
 \label{fig:plot}
 \end{figure}
 
+\section*{Sample}
+
+The COHb in the employee's blood was measured at \Sexpr{round(input$XCOHb,1)}$\pm$\Sexpr{round(XCOHb.sd()/percent,1)}\% from a \Sexpr{input$COHb_method} sample taken \Sexpr{round(input$t_e+input$t_c+input$t_t)}$\pm$\Sexpr{round(input$t_e.sd+input$t_c.sd+input$t_t.sd)} minutes from the beginning of the exposure.
+
 \section*{Employee}
 
-An employee weight of \Sexpr{input$w} pounds and height of \Sexpr{input$h} feet was used to estimate an employee blood volume for a \Sexpr{input$gender} of \Sexpr{round(Vb()/liter,2)} liters.
+An employee weight of \Sexpr{round(input$w)}$\pm$\Sexpr{round(input$w.sd)} pounds and height of \Sexpr{round(input$h,1)}$\pm$\Sexpr{round(input$h.sd,1)} inches was used to estimate a employee blood volume of \Sexpr{round(Vb()/liter,2)}$\pm$\Sexpr{round(sd(Vb.MC())/liter,2)} liters for a \Sexpr{input$gender}.
 
 \section*{Environment}
 
-The elevation of the exposure at \Sexpr{input$z} feet was used to estimate an absolute pressure of \Sexpr{round(PB()/mmHg)} mmHg.
+\ifthenelse{\equal{\Sexpr{input$PB_method}}{elevation}}{
+   The elevation at the location of the exposure of \Sexpr{round(input$z)}$\pm$\Sexpr{round(input$z.sd)} feet was used to estimate an absolute pressure of \Sexpr{round(PB()/mmHg)}$\pm$\Sexpr{round(sd(PB.MC())/mmHg)} mmHg.
+}{}
+
+\ifthenelse{\equal{\Sexpr{input$PB_method}}{pressure}}{
+   The absolute pressure at the location of the exposure was \Sexpr{round(input$PB)}$\pm$\Sexpr{round(input$PB.sd)} mmHg.
+}{}
 
 \section*{Exposure}
 
-The employee was performing work at an activity level of \Sexpr{input$AL_e} for \Sexpr{input$t_e} minutes.  During this period of time the concentration of carboxyhemoglobin in the employee's blood raised from \Sexpr{input$XCOHb}\% to a maximum of \Sexpr{round(XCOHb.B()/percent,1)}\%. This increase in carboxyhemoglobin concentration is represented by the red portion of the graph in Figure \ref{fig:plot}.
+The employee was performing work at an activity level of \Sexpr{round(input$AL_e,1)}$\pm$\Sexpr{round(input$AL_e.sd,1)} for \Sexpr{round(input$t_e)}$\pm$\Sexpr{round(input$t_e.sd)} minutes.  During this period of time the concentration of carboxyhemoglobin in the employee's blood raised from \Sexpr{round(XCOHb.A()/percent,2)}$\pm$\Sexpr{round(sd(XCOHb.A.MC())/percent,2)}\% to a maximum of \Sexpr{round(XCOHb.B()/percent,1)}$\pm$\Sexpr{round(sd(XCOHb.B.MC())/percent,1)}\%. This increase in carboxyhemoglobin concentration is represented by the red portion of the graph in Figure \ref{fig:plot}.
 
 \section*{Clearance}
 
-There was a period of \Sexpr{input$t_c+input$t_t} minutes between the end of the employee exposure and when the concentration of carboxyhemoglobin droped to the measured value of \Sexpr{input$XCOHb}\%.  The employee was engaged in a work activity level of \Sexpr{input$AL_c} during this period time. This decrease in carboxyhemoglobin concentration is represented by the blue portion of the graph in Figure \ref{fig:plot}.
+There was a period of \Sexpr{round(input$t_c+input$t_t)}$\pm$\Sexpr{round(input$t_c.sd+input$t_t.sd)} minutes between the end of the employee exposure and when the concentration of carboxyhemoglobin dropped to the measured value of \Sexpr{round(input$XCOHb,1)}\%.  The employee was engaged in a work activity level of \Sexpr{round(input$AL_c,1)}$\pm$\Sexpr{round(input$AL_c.sd,1)} during 
+\ifthenelse{\equal{\Sexpr{input$t_t}}{0}}{}{the first \Sexpr{round(input$t_c)}$\pm$\Sexpr{round(input$t_c.sd)} minutes of}
+this phase. This decrease in carboxyhemoglobin concentration is represented by the blue portion of the graph in Figure \ref{fig:plot}. %
+\ifthenelse{\equal{\Sexpr{input$t_t}}{0}}{}{Oxygen%
+\ifthenelse{\equal{\Sexpr{input$OT_method}}{Oxygen level}}{at a}{
+via \Sexpr{input$OT_method} at a flow rate of %
+\ifthenelse{\equal{\Sexpr{input$OT_method}}{Nasal Cannula (NC)}}{\Sexpr{round(input$NC.lpm,2)}}{}%
+\ifthenelse{\equal{\Sexpr{input$OT_method}}{Simple Face Mask (SFM)}}{\Sexpr{round(input$SFM.lpm,2)}}{}%
+\ifthenelse{\equal{\Sexpr{input$OT_method}}{Non-Rebreather (NRB)}}{\Sexpr{round(input$NRB.lpm,2)}}{}%
+\ifthenelse{\equal{\Sexpr{input$OT_method}}{Bag-valve-mask (BVM)}}{\Sexpr{round(input$BVM.lpm,2)}}{} %
+(l/min) and an oxygen%
+}
+level of \Sexpr{round(x.O2_t()/percent,1)}$\pm$\Sexpr{round(input$x.O2_t.sd,1)}\% was administered for the final \Sexpr{round(input$t_t)}$\pm$\Sexpr{round(input$t_t.sd)} minutes of this clearance phase as represented by the green portion of the graph in Figure \ref{fig:plot}.
+}
+
+\ifthenelse{\equal{\Sexpr{input$smoker}}{TRUE}}{
+   \section*{Smoker}
+   The employee was a smoker.
+   }
 
 \end{document}
