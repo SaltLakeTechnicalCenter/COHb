@@ -133,7 +133,7 @@ ui <- fluidPage(
                                 conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("fhs_e.cigarettes.rsd")))
                               )),
                               conditionalPanel(condition="input.fhs_e_method=='percent'",fluidRow(
-                                column(4,numericInput("fhs_e.percent", label = "Fraction of exposure time smoked (%):", value = 0)),
+                                column(4,numericInput("fhs_e.percent", label = "Fraction of employee's smoke rate (%):", value = 0)),
                                 column(4,numericInput("fhs_e.percent.sd", label = "Standard Deviation (%):", value = 0)),
                                 conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("fhs_e.percent.rsd")))
                               )),
@@ -218,7 +218,7 @@ ui <- fluidPage(
                                 conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("fhs_c.cigarettes.rsd")))
                               )),
                               conditionalPanel(condition="input.fhs_c_method=='percent'",fluidRow(
-                                column(4,numericInput("fhs_c.percent", label = "Fraction of exposure time smoked (%):", value = 0)),
+                                column(4,numericInput("fhs_c.percent", label = "Fraction of employee's smoke rate (%):", value = 0)),
                                 column(4,numericInput("fhs_c.percent.sd", label = "Standard Deviation (%):", value = 0)),
                                 conditionalPanel("input.showRSD", column(4,"Relative standard deviation",verbatimTextOutput("fhs_c.percent.rsd")))
                               )),

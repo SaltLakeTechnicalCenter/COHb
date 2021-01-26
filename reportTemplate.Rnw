@@ -118,8 +118,20 @@ level of \Sexpr{round(x.O2_t()/percent,1)}$\pm$\Sexpr{round(input$x.O2_t.sd,1)}\
 }
 
 \ifthenelse{\equal{\Sexpr{input$smoker}}{TRUE}}{
-   \section*{Smoker}
-   The employee was a smoker.
-   }
-
+   \section*{First Hand Smoke}
+   %Smoking prior to exposure increases the initial concentration of COHb.
+   The amount of COHb in the blood prior to exposure was estimated to be
+   \Sexpr{round(XCOHb.A()/percent,2)}$\pm$\Sexpr{round(sd(XCOHb.A.MC())/percent,2)}\%%
+   \ifthenelse{\equal{\Sexpr{input$SS_method}}{cigarettes}}{ based upon an average of \Sexpr{round(input$cigarettes,1)}$\pm$\Sexpr{round(input$cigarettes.sd,1)} cigarettes smoked per day.}{}%
+   \ifthenelse{\equal{\Sexpr{input$SS_method}}{status}}{ based upon a smoker status of \Sexpr{round(input$SS,2)}$\pm$\Sexpr{round(SS.sd(),2)}.}{}%
+   \ifthenelse{\equal{\Sexpr{input$SS_method}}{percent}}{.}{}
+   An exposure of \Sexpr{round(x.CO_e.fhs()/ppm,1)}$\pm$\Sexpr{round(sd(x.CO_e.fhs.MC())/ppm,1)} ppm to carbon monoxide due to first hand smoke during the exposure phase is %
+   \ifthenelse{\equal{\Sexpr{input$fhs_e_method}}{cigarettes}}{known from the employee smoking \Sexpr{round(input$fhs_e.cigarettes,1)}$\pm$\Sexpr{round(input$fhs_e.cigarettes.sd,1)} cigarettes during this phase.}{}%
+   \ifthenelse{\equal{\Sexpr{input$fhs_e_method}}{percent}}{known from the employee smoking \Sexpr{round(input$fhs_e.percent,1)}$\pm$\Sexpr{round(input$fhs_e.percent.sd,1)}\% of the employee's normal smoking rate during this phase.}{}%
+   \ifthenelse{\equal{\Sexpr{input$fhs_e_method}}{ppm}}{\Sexpr{round(input$fhs_e.ppm)}$\pm$\Sexpr{round(input$fhs_e.ppm.sd)} ppm.}{} %
+   An exposure of \Sexpr{round(x.CO_c.fhs()/ppm,1)}$\pm$\Sexpr{round(sd(x.CO_c.fhs.MC())/ppm,1)} ppm to carbon monoxide due to first hand smoke during the clearance phase is %
+   \ifthenelse{\equal{\Sexpr{input$fhs_c_method}}{cigarettes}}{known from the employee smoking \Sexpr{round(input$fhs_c.cigarettes,1)}$\pm$\Sexpr{round(input$fhs_c.cigarettes.sd,1)} cigarettes during this phase.}{}%
+   \ifthenelse{\equal{\Sexpr{input$fhs_c_method}}{percent}}{known from the employee smoking \Sexpr{round(input$fhs_c.percent,1)}$\pm$\Sexpr{round(input$fhs_c.percent.sd,1)}\% of the employee's normal smoking rate during this phase.}{}%
+   \ifthenelse{\equal{\Sexpr{input$fhs_c_method}}{ppm}}{\Sexpr{round(input$fhs_e.ppm)}$\pm$\Sexpr{round(input$fhs_c.ppm.sd)} ppm.}{} %
+   }{}
 \end{document}
