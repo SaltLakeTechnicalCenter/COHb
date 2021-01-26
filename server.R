@@ -479,7 +479,6 @@ server <- function(input, output, session) {
       out = knit2pdf('reportTemplate.Rnw', clean = TRUE)
       file.rename(out, file) # move pdf to file for downloading
     },
-    
     contentType = 'application/pdf'
   )
   #================================================== Abstract ==================================================#
@@ -579,6 +578,14 @@ server <- function(input, output, session) {
       df <- rbind(df, "Bag-valve-mask (BVM)" = list(value=input$BVM.lpm, uncertainty=0, units="liter/minute"), stringsAsFactors=FALSE)
       df <- rbind(df, "oxygen therapy oxygen level" = list(value=input$x.O2_t, uncertainty=input$x.O2_t.sd, units="%"), stringsAsFactors=FALSE)
       df <- rbind(df, "oxygen therapy carbon monoxide level" = list(value=input$x.CO_t, uncertainty=input$x.CO_t.sd, units="ppm"), stringsAsFactors=FALSE)
+      # Summary
+      df <- rbind(df, "employer" = list(value=NA, uncertainty=NA, units=input$employer), stringsAsFactors=FALSE)
+      df <- rbind(df, "inspectionNumber" = list(value=NA, uncertainty=NA, units=input$inspectionNumber), stringsAsFactors=FALSE)
+      df <- rbind(df, "complianceOfficer" = list(value=NA, uncertainty=NA, units=input$complianceOfficer), stringsAsFactors=FALSE)
+      df <- rbind(df, "areaOffice" = list(value=NA, uncertainty=NA, units=input$areaOffice), stringsAsFactors=FALSE)
+      df <- rbind(df, "region" = list(value=NA, uncertainty=NA, units=input$region), stringsAsFactors=FALSE)
+      df <- rbind(df, "requestDate" = list(value=NA, uncertainty=NA, units=input$requestDate), stringsAsFactors=FALSE)
+      df <- rbind(df, "exposureDate" = list(value=NA, uncertainty=NA, units=input$exposureDate), stringsAsFactors=FALSE)
       write.csv(df, file)
     }
   )
@@ -677,6 +684,14 @@ server <- function(input, output, session) {
         if ('oxygen therapy oxygen level' %in% row.names(tmp)) updateTextInput(session, inputId = "x.O2_t.sd", value = tmp["oxygen therapy oxygen level","uncertainty"])
         if ('oxygen therapy carbon monoxide level' %in% row.names(tmp)) updateTextInput(session, inputId = "x.CO_t", value = tmp["oxygen therapy carbon monoxide level","value"])
         if ('oxygen therapy carbon monoxide level' %in% row.names(tmp)) updateTextInput(session, inputId = "x.CO_t.sd", value = tmp["oxygen therapy carbon monoxide level","uncertainty"])
+        # Employee
+        if ('employer' %in% row.names(tmp)) updateTextInput(session, inputId = "employer", value = tmp["employer","units"])
+        if ('inspectionNumber' %in% row.names(tmp)) updateTextInput(session, inputId = "inspectionNumber", value = tmp["inspectionNumber","units"])
+        if ('complianceOfficer' %in% row.names(tmp)) updateTextInput(session, inputId = "complianceOfficer", value = tmp["complianceOfficer","units"])
+        if ('areaOffice' %in% row.names(tmp)) updateTextInput(session, inputId = "areaOffice", value = tmp["areaOffice","units"])
+        if ('region' %in% row.names(tmp)) updateTextInput(session, inputId = "region", value = tmp["region","units"])
+        if ('requestDate' %in% row.names(tmp)) updateTextInput(session, inputId = "requestDate", value = tmp["requestDate","units"])
+        if ('exposureDate' %in% row.names(tmp)) updateTextInput(session, inputId = "exposureDate", value = tmp["exposureDate","units"])
       },
       error = function(e) {stop(safeError(e))}
     )
