@@ -27,9 +27,9 @@ server <- function(input, output, session) {
   output$Hb.rsd = renderText(Hb.sd()/Hb())
   # Fraction of COHb in blood sample (%)
   COHb.D = reactive(COHb(XCOHb=XCOHb(),Hb=Hb()))
-  output$COHb.D = renderPrint(cat("COHb.D =",COHb.D()/percent,"%"))
+  output$COHb.D = renderPrint(cat("COHb.D =",COHb.D(),"mL/mL"))
   COHb.D.MC = reactive(COHb(XCOHb=XCOHb.MC(),Hb=Hb.MC()))
-  output$COHb.D.sd = renderPrint(cat(sd(COHb.D.MC())/percent,"%"))
+  output$COHb.D.sd = renderPrint(cat(sd(COHb.D.MC()),"mL/mL"))
   #================================================== Employee ==================================================#
   # Weight (pounds)
   w = reactive(input$w*pound)
@@ -95,9 +95,9 @@ server <- function(input, output, session) {
   output$XCOHb.A.sd = renderPrint(cat(sd(XCOHb.A.MC())/percent,"%"))
   # COHb in blood prior to exposure
   COHb.A = reactive(Hf*Hb()*XCOHb.A())
-  output$COHb.A = renderPrint(cat("COHb.A =",COHb.A()/(gram/(100*mL)),"grams/100mL")) # I think I've made a mistake here in presenting the intermediate variables - maybe a units issue?
+  output$COHb.A = renderPrint(cat("COHb.A =",COHb.A(),"mL/mL"))
   COHb.A.MC = reactive(Hf*Hb.MC()*XCOHb.A.MC())
-  output$COHb.A.sd = renderPrint(cat(sd(COHb.A.MC())/(gram/(100*mL)),"grams/100mL"))
+  output$COHb.A.sd = renderPrint(cat(sd(COHb.A.MC()),"mL/mL"))
   #================================================== Enviroment ==================================================#
   # Elevation
   z = reactive(input$z*ft)
@@ -368,9 +368,9 @@ server <- function(input, output, session) {
   output$PCO2_c.sd = renderPrint(cat(sd(PCO2_c.MC())/mmHg,"mmHg"))
   #
   COHb.B = reactive(findInitCOHb(t=t_c(),COHb.f=COHb.C(),Vb=Vb(),beta=beta_c(),PICO=PICO_c(),PCO2=PCO2_c(),Hb=Hb()))
-  output$COHb.B = renderPrint(cat("COHb.B =",COHb.B()))
+  output$COHb.B = renderPrint(cat("COHb.B =",COHb.B(),"mL/mL"))
   COHb.B.MC = reactive(findInitCOHb(t=t_c.MC(),COHb.f=COHb.C.MC(),Vb=Vb.MC(),beta=beta_c.MC(),PICO=PICO_c.MC(),PCO2=PCO2_c.MC(),Hb=Hb.MC()))
-  output$COHb.B.sd = renderPrint(cat(sd(COHb.B.MC())))
+  output$COHb.B.sd = renderPrint(cat(sd(COHb.B.MC()),"mL/mL"))
   #
   XCOHb.B = reactive(COHb.B()/Hf/Hb())
   output$XCOHb.B = renderPrint(cat("XCOHb.B =",XCOHb.B()/percent,"%"))
@@ -432,9 +432,9 @@ server <- function(input, output, session) {
   output$PCO2_t.sd = renderPrint(cat(sd(PCO2_t.MC())/mmHg,"mmHg"))
   #
   COHb.C = reactive(findInitCOHb(t=t_t(),COHb.f=COHb.D(),Vb=Vb(),beta=beta_t(),PICO=PICO_t(),PCO2=PCO2_t(),Hb=Hb()))
-  output$COHb.C = renderPrint(cat("COHb.C =",COHb.C())) # I think this should have units.  I will have to check on this.
+  output$COHb.C = renderPrint(cat("COHb.C =",COHb.C(),"mL/mL"))
   COHb.C.MC = reactive(findInitCOHb(t=t_t.MC(),COHb.f=COHb.D.MC(),Vb=Vb.MC(),beta=beta_t.MC(),PICO=PICO_t.MC(),PCO2=PCO2_t.MC(),Hb=Hb.MC()))
-  output$COHb.C.sd = renderPrint(cat(sd(COHb.C.MC()))) # I think this should have units.  I will have to check on this.
+  output$COHb.C.sd = renderPrint(cat(sd(COHb.C.MC()),"mL/mL"))
   #
   XCOHb.C = reactive(COHb.C()/Hf/Hb())
   output$XCOHb.C = renderPrint(cat("XCOHb.C =",XCOHb.C()/percent,"%"))
