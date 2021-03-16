@@ -708,35 +708,35 @@ server <- function(input, output, session) {
         temp = scan(file=con, nlines=1, what="numeric", sep=",", quiet=TRUE)                                 #Exposure Duration (minutes): t_e
           t_e = as.numeric(temp[1])*minute
           t_e.rsd = as.numeric(temp[2])
-          t_e.sd = t_e*t_e.rsd
+          t_e.sd = t_e*t_e.rsd*sqrt(3)
           updateTextInput(session, inputId = "t_e", value = paste(t_e/minute))
           updateTextInput(session, inputId = "t_e.sd", value = paste(t_e.sd/minute))
         temp = scan(file=con, nlines=1, what="numeric", sep=",", quiet=TRUE)                                 #Total Time for Clearance and Oxygen Therapy (minutes): t_c + t_t
           t_ct = as.numeric(temp[1])*minute
           t_ct.rsd = as.numeric(temp[2])
-          t_ct.sd = t_ct*t_ct.rsd
+          t_ct.sd = t_ct*t_ct.rsd*sqrt(3)
         temp = scan(file=con, nlines=1, what="numeric", sep=",", quiet=TRUE)                                 #Exposure Duration (minutes): t_e
           XCOHb = as.numeric(temp[1])*percent
           XCOHb.rsd = as.numeric(temp[2])
-          XCOHb.sd = XCOHb*XCOHb.rsd
+          XCOHb.sd = XCOHb*XCOHb.rsd*sqrt(3)
           updateTextInput(session, inputId = "XCOHb", value = paste(XCOHb/percent))
           updateTextInput(session, inputId = "XCOHb.sd", value = paste(XCOHb.sd/percent))
         temp = scan(file=con, nlines=1, what="numeric", sep=",", quiet=TRUE)                                 #Weight (pounds): w
           w = as.numeric(temp[1])*pound
           w.rsd = as.numeric(temp[2])
-          w.sd = w*w.rsd
+          w.sd = w*w.rsd*sqrt(3)
           updateTextInput(session, inputId = "w", value = paste(w/pound))
           updateTextInput(session, inputId = "w.sd", value = paste(w.sd/pound))
         temp = scan(file=con, nlines=1, what="numeric", sep=",", quiet=TRUE)                                 #Height (inches): h
           h = as.numeric(temp[1])*inch
           h.rsd = as.numeric(temp[2])
-          h.sd = h*h.rsd
+          h.sd = h*h.rsd*sqrt(3)
           updateTextInput(session, inputId = "h", value = paste(h/inch))
           updateTextInput(session, inputId = "h.sd", value = paste(h.sd/inch))
         temp = scan(file=con, nlines=1, what="numeric", sep=",", quiet=TRUE)                                 #Smoker Status: SS
           SS = as.numeric(temp[1])
           SS.rsd = as.numeric(temp[2])
-          SS.sd = SS*SS.rsd
+          SS.sd = SS*SS.rsd*sqrt(3)
           updateTextInput(session, inputId = "SS", value = paste(SS))
           updateTextInput(session, inputId = "SS.sd", value = paste(SS.sd))
           updateCheckboxInput(session, inputId = "smoker", value = 1)
@@ -748,13 +748,13 @@ server <- function(input, output, session) {
         temp = scan(file=con, nlines=1, what="numeric", sep=",", quiet=TRUE)                                 #Activity Level during exposure: AL_e
           AL_e = as.numeric(temp[1])
           AL_e.rsd = as.numeric(temp[2])
-          AL_e.sd = AL_e*AL_e.rsd
+          AL_e.sd = AL_e*AL_e.rsd*sqrt(3)
           updateTextInput(session, inputId = "AL_e", value = paste(AL_e))
           updateTextInput(session, inputId = "AL_e.sd", value = paste(AL_e.sd))
         temp = scan(file=con, nlines=1, what="numeric", sep=",", quiet=TRUE)                                 #Activity Level during clearance: AL_c
           AL_c = as.numeric(temp[1])
           AL_c.rsd = as.numeric(temp[2])
-          AL_c.sd = AL_c*AL_c.rsd
+          AL_c.sd = AL_c*AL_c.rsd*sqrt(3)
           updateTextInput(session, inputId = "AL_c", value = paste(AL_c))
           updateTextInput(session, inputId = "AL_c.sd", value = paste(AL_c.sd))
         AL_t = 0
@@ -764,19 +764,19 @@ server <- function(input, output, session) {
         temp = scan(file=con, nlines=1, what="numeric", sep=",", quiet=TRUE)                                 #Hemoglobin in blood (grams/100mL): Hb
           Hb = as.numeric(temp[1])
           Hb.rsd = as.numeric(temp[2])
-          Hb.sd = Hb*Hb.rsd
+          Hb.sd = Hb*Hb.rsd*sqrt(3)
           updateTextInput(session, inputId = "Hb", value = paste(Hb))
           updateTextInput(session, inputId = "Hb.sd", value = paste(Hb.sd))
         temp = scan(file=con, nlines=1, what="numeric", sep=",", quiet=TRUE)                                 #Atmospheric Pressure (mmHg): PB
           PB = as.numeric(temp[1])
           PB.rsd = as.numeric(temp[2])
-          PB.sd = PB*PB.rsd
+          PB.sd = PB*PB.rsd*sqrt(3)
           updateTextInput(session, inputId = "PB", value = paste(PB))
           updateTextInput(session, inputId = "PB.sd", value = paste(PB.sd))
         temp = scan(file=con, nlines=1, what="numeric", sep=",", quiet=TRUE)                                 #Carbon Monoxide Level during Exposure (ppm): x.CO_e
           x.CO_e = as.numeric(temp[1])
           x.CO_e.rsd = as.numeric(temp[2])
-          x.CO_e.sd = x.CO_e*x.CO_e.rsd
+          x.CO_e.sd = x.CO_e*x.CO_e.rsd*sqrt(3)
           updateSelectInput(session, inputId = "fhs_e_method", selected = "ppm")
           updateTextInput(session, inputId = "fhs_e.ppm", value = paste(x.CO_e))
           updateTextInput(session, inputId = "fhs_e.ppm.sd", value = paste(x.CO_e.sd))
@@ -795,7 +795,7 @@ server <- function(input, output, session) {
           temp = scan(file=con, nlines=1, what="numeric", sep=",", quiet=TRUE)                                 #Carbon Monoxide Level during Clearance (ppm): x.CO_c
           x.CO_c = as.numeric(temp[1])
           x.CO_c.rsd = as.numeric(temp[2])
-          x.CO_c.sd = x.CO_c*x.CO_c.rsd
+          x.CO_c.sd = x.CO_c*x.CO_c.rsd*sqrt(3)
           updateSelectInput(session, inputId = "fhs_c_method", selected = "ppm")
           updateTextInput(session, inputId = "fhs_c.ppm", value = paste(x.CO_c))
           updateTextInput(session, inputId = "fhs_c.ppm.sd", value = paste(x.CO_c.sd))
