@@ -9,7 +9,10 @@ server <- function(input, output, session) {
     else if (input$COHb_method=='SpCO') 2.8*percent
     else if (input$COHb_method=='breath') input$XCOHb.sd*percent
   )
-  XCOHb.MC = reactive(runif(n(),XCOHb()-XCOHb.sd(),XCOHb()+XCOHb.sd()))
+  XCOHb.MC = reactive(
+    if (input$shape=='uniform') runif(n(),XCOHb()-XCOHb.sd(),XCOHb()+XCOHb.sd())
+    else if (input$shape=='normal') rnorm(n(),XCOHb(),XCOHb.sd()/sqrt(3))
+  )
   output$XCOHb.sd = renderPrint(cat("XCOHb.sd =",XCOHb.sd()/percent,"%"))
   output$XCOHb.rsd = renderText(XCOHb.sd()/XCOHb())
   # Hemoglobin in blood sample (grams/100mL)
@@ -21,7 +24,10 @@ server <- function(input, output, session) {
     if (input$Hb_method=='blood') input$Hb.sd*gram/(100*mL)
     else if (input$Hb_method=='gender') {if (input$gender=='male') 1.1735*gram/(100*mL) else 1.0204*gram/(100*mL)}
   )
-  Hb.MC = reactive(runif(n(),Hb()-Hb.sd(),Hb()+Hb.sd()))
+  Hb.MC = reactive(
+    if (input$shape=='uniform') runif(n(),Hb()-Hb.sd(),Hb()+Hb.sd())
+    else if (input$shape=='normal') rnorm(n(),Hb(),Hb.sd()/sqrt(3))
+  )
   output$Hb = renderPrint(cat("Hb =",Hb()/(gram/(100*mL)),"grams/100mL"))
   output$Hb.sd = renderPrint(cat("Hb.sd =",Hb.sd()/(gram/(100*mL)),"grams/100mL"))
   output$Hb.rsd = renderText(Hb.sd()/Hb())
@@ -34,12 +40,18 @@ server <- function(input, output, session) {
   # Weight (pounds)
   w = reactive(input$w*pound)
   w.sd = reactive(input$w.sd*pound)
-  w.MC = reactive(runif(n(),w()-w.sd(),w()+w.sd()))
+  w.MC = reactive(
+    if (input$shape=='uniform') runif(n(),w()-w.sd(),w()+w.sd())
+    else if (input$shape=='normal') rnorm(n(),w(),w.sd()/sqrt(3))
+    )
   output$w.rsd = renderText(w.sd()/w())
   # Height (inches)
   h = reactive(input$h*inch)
   h.sd = reactive(input$h.sd*inch)
-  h.MC = reactive(runif(n(),h()-h.sd(),h()+h.sd()))
+  h.MC = reactive(
+    if (input$shape=='uniform') runif(n(),h()-h.sd(),h()+h.sd())
+    else if (input$shape=='normal') rnorm(n(),h(),h.sd()/sqrt(3))
+    )
   output$h.rsd = renderText(h.sd()/h())
   # Estimated blood volume of employee (liters)
   Vb = reactive(
@@ -56,7 +68,10 @@ server <- function(input, output, session) {
       input$SS
   })
   SS.sd = reactive(if (SS()==0) 0 else 0.32*SS())
-  SS.MC = reactive(runif(n(),SS()-SS.sd(),SS()+SS.sd()))
+  SS.MC = reactive(
+    if (input$shape=='uniform') runif(n(),SS()-SS.sd(),SS()+SS.sd())
+    else if (input$shape=='normal') rnorm(n(),SS(),SS.sd()/sqrt(3))
+    )
   output$SS = renderText(SS())
   output$SS.sd = renderText(SS.sd())
   output$SS.rsd = renderText(SS.sd()/SS())
@@ -67,12 +82,19 @@ server <- function(input, output, session) {
     input$cigarettes
     })
   cigarettes.sd=reactive(input$cigarettes.sd)
-  cigarettes.MC = reactive(runif(n(),cigarettes()-cigarettes.sd(),cigarettes()+cigarettes.sd()))
+  cigarettes.MC = reactive(
+    if (input$shape=='uniform') runif(n(),cigarettes()-cigarettes.sd(),cigarettes()+cigarettes.sd())
+    else if (input$shape=='normal') rnorm(n(),cigarettes(),cigarettes.sd()/sqrt(3))
+        
+    )
   output$cigarettes.rsd = renderText(cigarettes.sd()/cigarettes())
   # Initial COHb in blood
   XCOHb.0=reactive(input$XCOHb.0*percent)
   XCOHb.0.sd=reactive(input$XCOHb.0.sd*percent)
-  XCOHb.0.MC = reactive(runif(n(),XCOHb.0()-XCOHb.0.sd(),XCOHb.0()+XCOHb.0.sd()))
+  XCOHb.0.MC = reactive(
+    if (input$shape=='uniform') runif(n(),XCOHb.0()-XCOHb.0.sd(),XCOHb.0()+XCOHb.0.sd())
+    else if (input$shape=='normal') rnorm(n(),XCOHb.0(),XCOHb.0.sd()/sqrt(3))
+  )
   output$XCOHb.0.rsd = renderText(XCOHb.0.sd()/XCOHb.0())
   # Fraction of COHb in blood prior to exposure (%)
   XCOHb.A = reactive(
@@ -102,7 +124,10 @@ server <- function(input, output, session) {
   # Elevation
   z = reactive(input$z*ft)
   z.sd = reactive(input$z.sd*ft)
-  z.MC = reactive(runif(n(),z()-z.sd(),z()+z.sd()))
+  z.MC = reactive(
+    if (input$shape=='uniform') runif(n(),z()-z.sd(),z()+z.sd())
+    else if (input$shape=='normal') rnorm(n(),z(),z.sd()/sqrt(3))
+    )
   output$z.rsd = renderText(z.sd()/z())
   # Atmospheric Pressure (mmHg)
   PB = reactive(
@@ -112,7 +137,10 @@ server <- function(input, output, session) {
   PB.sd = reactive(input$PB.sd*mmHg)
   PB.MC = reactive(
     if (input$PB_method=='elevation') P(z.MC())
-    else if (input$PB_method=='pressure') runif(n(),PB()-PB.sd(),PB()+PB.sd())
+    else if (input$PB_method=='pressure') (
+      if (input$shape=='uniform') runif(n(),PB()-PB.sd(),PB()+PB.sd())
+      else if (input$shape=='normal') rnorm(n(),PB(),PB.sd()/sqrt(3))
+    )
   )
   output$PB = renderPrint(cat("PB =",PB()/mmHg,"mmHg"))
   output$PB.sd = renderPrint(cat(sd(PB.MC())/mmHg,"mmHg"))
@@ -121,32 +149,50 @@ server <- function(input, output, session) {
   # Exposure duration (minutes)
   t_e = reactive(input$t_e*minute)
   t_e.sd = reactive(input$t_e.sd*minute)
-  t_e.MC = reactive(runif(n(),t_e()-t_e.sd(),t_e()+t_e.sd()))
+  t_e.MC = reactive(
+    if (input$shape=='uniform') runif(n(),t_e()-t_e.sd(),t_e()+t_e.sd())
+    else if (input$shape=='normal') rnorm(n(),t_e(),t_e.sd()/sqrt(3))
+  )
   output$t_e.rsd = renderText(t_e.sd()/t_e())
   # Exposure activity Level
   AL_e = reactive(input$AL_e)
   AL_e.sd = reactive(input$AL_e.sd)
-  AL_e.MC = reactive(runif(n(),AL_e()-AL_e.sd(),AL_e()+AL_e.sd()))
+  AL_e.MC = reactive(
+    if (input$shape=='uniform') runif(n(),AL_e()-AL_e.sd(),AL_e()+AL_e.sd())
+    else if (input$shape=='normal') rnorm(n(),AL_e(),AL_e.sd()/sqrt(3))
+  )
   output$AL_e.rsd = renderText(AL_e.sd()/AL_e())
   # Oxygen level (% oxygen)
   x.O2_e = reactive(input$x.O2_e*percent)
   x.O2_e.sd = reactive(input$x.O2_e.sd*percent)
-  x.O2_e.MC = reactive(runif(n(),x.O2_e()-x.O2_e.sd(),x.O2_e()+x.O2_e.sd()))
+  x.O2_e.MC = reactive(
+    if (input$shape=='uniform') runif(n(),x.O2_e()-x.O2_e.sd(),x.O2_e()+x.O2_e.sd())
+    else if (input$shape=='normal') rnorm(n(),x.O2_e(),x.O2_e.sd()/sqrt(3))
+  )
   output$x.O2_e.rsd = renderText(x.O2_e.sd()/x.O2_e())
   # Cigarettes smoked during exposure
   fhs_e.cigarettes = reactive(input$fhs_e.cigarettes)
   fhs_e.cigarettes.sd = reactive(input$fhs_e.cigarettes.sd)
-  fhs_e.cigarettes.MC = reactive(runif(n(),fhs_e.cigarettes()-fhs_e.cigarettes.sd(),fhs_e.cigarettes()+fhs_e.cigarettes.sd()))
+  fhs_e.cigarettes.MC = reactive(
+    if (input$shape=='uniform') runif(n(),fhs_e.cigarettes()-fhs_e.cigarettes.sd(),fhs_e.cigarettes()+fhs_e.cigarettes.sd())
+    else if (input$shape=='normal') rnorm(n(),fhs_e.cigarettes(),fhs_e.cigarettes.sd()/sqrt(3))
+  )
   output$fhs_e.cigarettes.rsd = renderText(fhs_e.cigarettes.sd()/fhs_e.cigarettes())
   # Fraction of exposure smoked (%)
   fhs_e.percent = reactive(input$fhs_e.percent*percent)
   fhs_e.percent.sd = reactive(input$fhs_e.percent.sd*percent)
-  fhs_e.percent.MC = reactive(runif(n(),fhs_e.percent()-fhs_e.percent.sd(),fhs_e.percent()+fhs_e.percent.sd()))
+  fhs_e.percent.MC = reactive(
+    if (input$shape=='uniform') runif(n(),fhs_e.percent()-fhs_e.percent.sd(),fhs_e.percent()+fhs_e.percent.sd())
+    else if (input$shape=='normal') rnorm(n(),fhs_e.percent(),fhs_e.percent.sd()/sqrt(3))
+  )
   output$fhs_e.percent.rsd = renderText(fhs_e.percent.sd()/fhs_e.percent())
   # CO exposure from smoking (ppm)
   fhs_e.ppm = reactive(input$fhs_e.ppm*ppm)
   fhs_e.ppm.sd = reactive(input$fhs_e.ppm.sd*ppm)
-  fhs_e.ppm.MC = reactive(runif(n(),fhs_e.ppm()-fhs_e.ppm.sd(),fhs_e.ppm()+fhs_e.ppm.sd()))
+  fhs_e.ppm.MC = reactive(
+    if (input$shape=='uniform') runif(n(),fhs_e.ppm()-fhs_e.ppm.sd(),fhs_e.ppm()+fhs_e.ppm.sd())
+    else if (input$shape=='normal') rnorm(n(),fhs_e.ppm(),fhs_e.ppm.sd()/sqrt(3))
+  )
   output$fhs_e.ppm.rsd = renderText(fhs_e.ppm.sd()/fhs_e.ppm())
   # CO exposure from first hand smoke (ppm)
   x.CO_e.fhs = reactive({
@@ -170,7 +216,10 @@ server <- function(input, output, session) {
         if (input$SS_method=='cigarettes') steadyState_c(cigs=cigarettes.MC()*fhs_e.percent.MC())
         else if (input$SS_method=='status') steadyState_s(SS=SS.MC()*fhs_e.percent.MC())
       }
-      else if (input$fhs_e_method=='ppm') runif(n(),x.CO_e.fhs()-x.CO_e.fhs.sd(),x.CO_e.fhs()+x.CO_e.fhs.sd())
+      else if (input$fhs_e_method=='ppm') (
+        if (input$shape=='uniform') runif(n(),x.CO_e.fhs()-x.CO_e.fhs.sd(),x.CO_e.fhs()+x.CO_e.fhs.sd())
+        else if (input$shape=='normal') rnorm(n(),x.CO_e.fhs(),x.CO_e.fhs.sd()/sqrt(3))
+      )
     }
     else 0
   })
@@ -179,17 +228,22 @@ server <- function(input, output, session) {
   # Exposure to second hand smoke (minutes):
   shs_e.time = reactive(input$shs_e.time*minute)
   shs_e.time.sd = reactive(input$shs_e.time.sd*minute)
-  shs_e.time.MC = reactive(runif(n(),shs_e.time()-shs_e.time.sd(),shs_e.time()+shs_e.time.sd()))
+  shs_e.time.MC = reactive(
+    if (input$shape=='uniform') runif(n(),shs_e.time()-shs_e.time.sd(),shs_e.time()+shs_e.time.sd())
+    else if (input$shape=='normal') rnorm(n(),shs_e.time(),shs_e.time.sd()/sqrt(3))
+  )
   output$shs_e.time.rsd = renderText(shs_e.time.sd()/shs_e.time())
   # Exposure to second hand smoke (%):
   shs_e.percent = reactive(input$shs_e.percent*percent)
   shs_e.percent.sd = reactive(input$shs_e.percent.sd*percent)
-  shs_e.percent.MC = reactive(runif(n(),shs_e.percent()-shs_e.percent.sd(),shs_e.percent()+shs_e.percent.sd()))
+  shs_e.percent.MC = reactive(
+    if (input$shape=='uniform') runif(n(),shs_e.percent()-shs_e.percent.sd(),shs_e.percent()+shs_e.percent.sd())
+    else if (input$shape=='normal') rnorm(n(),shs_e.percent(),shs_e.percent.sd()/sqrt(3))
+  )
   output$shs_e.percent.rsd = renderText(shs_e.percent.sd()/shs_e.percent())
   # Exposure to second hand smoke (ppm):
   shs_e.ppm = reactive(input$shs_e.ppm*ppm)
   shs_e.ppm.sd = reactive(input$shs_e.ppm.sd*ppm)
-  #shs_e.percent.MC = reactive(runif(n(),shs_e.percent(),shs_e.percent.sd()))
   output$shs_e.ppm.rsd = renderText(shs_e.ppm.sd()/shs_e.ppm())
   # CO exposure from second hand smoke (ppm)
   x.CO_e.shs = reactive({
@@ -205,7 +259,10 @@ server <- function(input, output, session) {
     if (input$shs_e){
       if (input$shs_e_method=='time') steadyState_s(SS=1)*shs_e.time.MC()/t_e.MC()
       else if (input$shs_e_method=='percent') steadyState_s(SS=1)*shs_e.percent.MC()
-      else if (input$shs_e_method=='ppm') runif(n(),x.CO_e.shs()-shs_e.ppm.sd(),x.CO_e.shs()+shs_e.ppm.sd())
+      else if (input$shs_e_method=='ppm') (
+        if (input$shape=='uniform') runif(n(),x.CO_e.shs()-shs_e.ppm.sd(),x.CO_e.shs()+shs_e.ppm.sd())
+        else if (input$shape=='normal') rnorm(n(),x.CO_e.shs(),shs_e.ppm.sd()/sqrt(3))
+      )
     }
     else 0*runif(n(),x.CO_e.shs()-shs_e.ppm.sd(),x.CO_e.shs()+shs_e.ppm.sd())
   })
@@ -249,32 +306,50 @@ server <- function(input, output, session) {
   # Clearance duration (minutes)
   t_c = reactive(input$t_c*minute)
   t_c.sd = reactive(input$t_c.sd*minute)
-  t_c.MC = reactive(runif(n(),t_c()-t_c.sd(),t_c()+t_c.sd()))
+  t_c.MC = reactive(
+    if (input$shape=='uniform') runif(n(),t_c()-t_c.sd(),t_c()+t_c.sd())
+    else if (input$shape=='normal') rnorm(n(),t_c(),t_c.sd()/sqrt(3))
+  )
   output$t_c.rsd = renderText(t_c.sd()/t_c())
   # Clearance activity Level:
   AL_c = reactive(input$AL_c)
   AL_c.sd = reactive(input$AL_c.sd)
-  AL_c.MC = reactive(runif(n(),AL_c()-AL_c.sd(),AL_c()+AL_c.sd()))
+  AL_c.MC = reactive(
+    if (input$shape=='uniform') runif(n(),AL_c()-AL_c.sd(),AL_c()+AL_c.sd())
+    else if (input$shape=='normal') rnorm(n(),AL_c(),AL_c.sd()/sqrt(3))
+  )
   output$AL_c.rsd = renderText(AL_c.sd()/AL_c())
   # Clearance oxygen level (% oxygen)
   x.O2_c = reactive(input$x.O2_c*percent)
   x.O2_c.sd = reactive(input$x.O2_c.sd*percent)
-  x.O2_c.MC = reactive(runif(n(),x.O2_c()-x.O2_c.sd(),x.O2_c()+x.O2_c.sd()))
+  x.O2_c.MC = reactive(
+    if (input$shape=='uniform') runif(n(),x.O2_c()-x.O2_c.sd(),x.O2_c()+x.O2_c.sd())
+    else if (input$shape=='normal') rnorm(n(),x.O2_c(),x.O2_c.sd()/sqrt(3))
+    )
   output$x.O2_c.rsd = renderText(x.O2_c.sd()/x.O2_c())
   # Cigarettes smoked during clearance
   fhs_c.cigarettes = reactive(input$fhs_c.cigarettes)
   fhs_c.cigarettes.sd = reactive(input$fhs_c.cigarettes.sd)
-  fhs_c.cigarettes.MC = reactive(runif(n(),fhs_c.cigarettes()-fhs_c.cigarettes.sd(),fhs_c.cigarettes()+fhs_c.cigarettes.sd()))
+  fhs_c.cigarettes.MC = reactive(
+    if (input$shape=='uniform') runif(n(),fhs_c.cigarettes()-fhs_c.cigarettes.sd(),fhs_c.cigarettes()+fhs_c.cigarettes.sd())
+    else if (input$shape=='normal') rnorm(n(),fhs_c.cigarettes(),fhs_c.cigarettes.sd()/sqrt(3))
+    )
   output$fhs_c.cigarettes.rsd = renderText(fhs_c.cigarettes.sd()/fhs_c.cigarettes())
   # Fraction of clearance smoked (%)
   fhs_c.percent = reactive(input$fhs_c.percent*percent)
   fhs_c.percent.sd = reactive(input$fhs_c.percent.sd*percent)
-  fhs_c.percent.MC = reactive(runif(n(),fhs_c.percent()-fhs_c.percent.sd(),fhs_c.percent()+fhs_c.percent.sd()))
+  fhs_c.percent.MC = reactive(
+    if (input$shape=='uniform') runif(n(),fhs_c.percent()-fhs_c.percent.sd(),fhs_c.percent()+fhs_c.percent.sd())
+    else if (input$shape=='normal') rnorm(n(),fhs_c.percent(),fhs_c.percent.sd()/sqrt(3))
+  )
   output$fhs_c.percent.rsd = renderText(fhs_c.percent.sd()/fhs_c.percent())
   # CO clearance from smoking (ppm)
   fhs_c.ppm = reactive(input$fhs_c.ppm*ppm)
   fhs_c.ppm.sd = reactive(input$fhs_c.ppm.sd*ppm)
-  fhs_c.ppm.MC = reactive(runif(n(),fhs_c.ppm()-fhs_c.ppm.sd(),fhs_c.ppm()+fhs_c.ppm.sd()))
+  fhs_c.ppm.MC = reactive(
+    if (input$shape=='uniform') runif(n(),fhs_c.ppm()-fhs_c.ppm.sd(),fhs_c.ppm()+fhs_c.ppm.sd())
+    else if (input$shape=='normal') rnorm(n(),fhs_c.ppm(),fhs_c.ppm.sd()/sqrt(3))
+  )
   output$fhs_c.ppm.rsd = renderText(fhs_c.ppm.sd()/fhs_c.ppm())
   # CO clearance from first hand smoke (ppm)
   x.CO_c.fhs = reactive({
@@ -297,24 +372,32 @@ server <- function(input, output, session) {
       if (input$SS_method=='cigarettes') steadyState_c(cigs=cigarettes.MC()*fhs_c.percent.MC())
       else if (input$SS_method=='status') steadyState_s(SS=SS.MC()*fhs_c.percent.MC())
     }
-    else if (input$fhs_c_method=='ppm') runif(n(),x.CO_c.fhs()-x.CO_c.fhs.sd(),x.CO_c.fhs()+x.CO_c.fhs.sd())
+    else if (input$fhs_c_method=='ppm') (
+      if (input$shape=='uniform') runif(n(),x.CO_c.fhs()-x.CO_c.fhs.sd(),x.CO_c.fhs()+x.CO_c.fhs.sd())
+      else if (input$shape=='normal') rnorm(n(),x.CO_c.fhs(),x.CO_c.fhs.sd()/sqrt(3))
+    )
   })
   output$x.CO_c.fhs.sd = renderPrint(cat(sd(x.CO_c.fhs.MC())/ppm,"ppm"))
   output$x.CO_c.fhs.rsd = renderText(x.CO_c.fhs.sd()/x.CO_c.fhs())
   # Clearance to second hand smoke (minutes):
   shs_c.time = reactive(input$shs_c.time*minute)
   shs_c.time.sd = reactive(input$shs_c.time.sd*minute)
-  shs_c.time.MC = reactive(runif(n(),shs_c.time()-shs_c.time.sd(),shs_c.time()+shs_c.time.sd()))
+  shs_c.time.MC = reactive(
+    if (input$shape=='uniform') runif(n(),shs_c.time()-shs_c.time.sd(),shs_c.time()+shs_c.time.sd())
+    else if (input$shape=='normal') rnorm(n(),shs_c.time(),shs_c.time.sd()/sqrt(3))
+  )
   output$shs_c.time.rsd = renderText(shs_c.time.sd()/shs_c.time())
   # Clearance to second hand smoke (%):
   shs_c.percent = reactive(input$shs_c.percent*percent)
   shs_c.percent.sd = reactive(input$shs_c.percent.sd*percent)
-  shs_c.percent.MC = reactive(runif(n(),shs_c.percent()-shs_c.percent.sd(),shs_c.percent()+shs_c.percent.sd()))
+  shs_c.percent.MC = reactive(
+    if (input$shape=='uniform') runif(n(),shs_c.percent()-shs_c.percent.sd(),shs_c.percent()+shs_c.percent.sd())
+    else if (input$shape=='normal') rnorm(n(),shs_c.percent(),shs_c.percent.sd()/sqrt(3))
+  )
   output$shs_c.percent.rsd = renderText(shs_c.percent.sd()/shs_c.percent())
   # Clearance to second hand smoke (ppm):
   shs_c.ppm = reactive(input$shs_c.ppm*ppm)
   shs_c.ppm.sd = reactive(input$shs_c.ppm.sd*ppm)
-  #shs_c.percent.MC = reactive(runif(n(),shs_c.percent(),shs_c.percent.sd()))
   output$shs_c.ppm.rsd = renderText(shs_c.ppm.sd()/shs_c.ppm())
   # CO clearance from second hand smoke (ppm)
   x.CO_c.shs = reactive({
@@ -330,7 +413,10 @@ server <- function(input, output, session) {
     if (input$shs_c){
       if (input$shs_c_method=='time') steadyState_s(SS=1)*shs_c.time.MC()/t_c.MC()
       else if (input$shs_c_method=='percent') steadyState_s(SS=1)*shs_c.percent.MC()
-      else if (input$shs_c_method=='ppm') runif(n(),x.CO_c.shs()-shs_c.ppm.sd(),x.CO_c.shs()+shs_c.ppm.sd())
+      else if (input$shs_c_method=='ppm') (
+        if (input$shape=='uniform') runif(n(),x.CO_c.shs()-shs_c.ppm.sd(),x.CO_c.shs()+shs_c.ppm.sd())
+        else if (input$shape=='normal') rnorm(n(),x.CO_c.shs(),shs_c.ppm.sd()/sqrt(3))
+      )
     }
     else 0*runif(n(),x.CO_c.shs()-shs_c.ppm.sd(),x.CO_c.shs()+shs_c.ppm.sd())
   })
@@ -380,12 +466,18 @@ server <- function(input, output, session) {
   # Oxygen Therapy duration (minutes)
   t_t = reactive(input$t_t*minute)
   t_t.sd = reactive(input$t_t.sd*minute)
-  t_t.MC = reactive(runif(n(),t_t()-t_t.sd(),t_t()+t_t.sd()))
+  t_t.MC = reactive(
+    if (input$shape=='uniform') runif(n(),t_t()-t_t.sd(),t_t()+t_t.sd())
+    else if (input$shape=='normal') rnorm(n(),t_t(),t_t.sd()/sqrt(3))
+  )
   output$t_t.rsd = renderText(t_t.sd()/t_t())
   # Oxygen Therapy activity Level
   AL_t = reactive(input$AL_t)
   AL_t.sd = reactive(input$AL_t.sd)
-  AL_t.MC = reactive(runif(n(),AL_t()-AL_t.sd(),AL_t()+AL_t.sd()))
+  AL_t.MC = reactive(
+    if (input$shape=='uniform') runif(n(),AL_t()-AL_t.sd(),AL_t()+AL_t.sd())
+    else if (input$shape=='normal') rnorm(n(),AL_t(),AL_t.sd()/sqrt(3))
+  )
   output$AL_t.rsd = renderText(AL_t.sd()/AL_t())
   # Oxygen Therapy oxygen level (% oxygen)
   x.O2_t = reactive(
@@ -398,12 +490,18 @@ server <- function(input, output, session) {
   output$x.O2_t = output$XCOHb.B.sd = renderPrint(cat(x.O2_t()/percent,"%"))
   #x.O2_t = reactive(input$x.O2_t*percent)
   x.O2_t.sd = reactive(input$x.O2_t.sd*percent)
-  x.O2_t.MC = reactive(runif(n(),x.O2_t()-x.O2_t.sd(),x.O2_t()+x.O2_t.sd()))
+  x.O2_t.MC = reactive(
+    if (input$shape=='uniform') runif(n(),x.O2_t()-x.O2_t.sd(),x.O2_t()+x.O2_t.sd())
+    else if (input$shape=='normal') rnorm(n(),x.O2_t(),x.O2_t.sd()/sqrt(3))
+  )
   output$x.O2_t.rsd = renderText(x.O2_t.sd()/x.O2_t())
   # Oxygen Therapy carbon monoxide level (ppm)
   x.CO_t = reactive(input$x.CO_t*ppm)
   x.CO_t.sd = reactive(input$x.CO_t.sd*ppm)
-  x.CO_t.MC = reactive(runif(n(),x.CO_t()-x.CO_t.sd(),x.CO_t()+x.CO_t.sd()))
+  x.CO_t.MC = reactive(
+    if (input$shape=='uniform') runif(n(),x.CO_t()-x.CO_t.sd(),x.CO_t()+x.CO_t.sd())
+    else if (input$shape=='normal') rnorm(n(),x.CO_t(),x.CO_t.sd()/sqrt(3))
+  )
   output$x.CO_t.rsd = renderText(x.CO_t.sd()/x.CO_t())
   #
   VA_t = reactive(VA(AL=AL_t(),PB=PB()))

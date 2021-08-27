@@ -329,7 +329,8 @@ ui <- fluidPage(
              )
     ),
     tabPanel("Parameters",
-             fluidRow(column(4,numericInput("deltaT", label = "Runge–Kutta time step (seconds):", value = 60))),
+             numericInput("deltaT", label = "Runge–Kutta time step (seconds):", value = 60),
+             selectInput("shape", label = "Shape of a probability distribution:", c("uniform","normal")),
              checkboxInput("advanced", "Show advanced features", FALSE),
              checkboxInput("intermediate", "Show intermediate values", FALSE),
              checkboxInput("doMonteCarlo", "Perform Monte Carlo simulations", FALSE),
