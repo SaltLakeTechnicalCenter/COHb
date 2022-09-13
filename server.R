@@ -482,7 +482,7 @@ server <- function(input, output, session) {
   # Oxygen Therapy oxygen level (% oxygen)
   x.O2_t = reactive(
     if (input$OT_method=='Oxygen level') input$x.O2_t*percent
-    else if (input$OT_method=='Nasal Cannula (NC)') approx(c(1,6),c(22,44),input$NC.lpm)$y*percent
+    else if (input$OT_method=='Nasal Cannula (NC)') approx(c(1,6),c(24,44),input$NC.lpm)$y*percent
     else if (input$OT_method=='Simple Face Mask (SFM)') approx(c(8,12),c(40,60),input$SFM.lpm)$y*percent
     else if (input$OT_method=='Non-Rebreather (NRB)') approx(c(10,15),c(80,100),input$NRB.lpm)$y*percent
     else if (input$OT_method=='Bag-valve-mask (BVM)') approx(c(10,15),c(60,100),input$BVM.lpm)$y*percent
