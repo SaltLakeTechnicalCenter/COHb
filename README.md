@@ -19,12 +19,12 @@ The following instructions have been successfully tested for installation of thi
 
 # Install R packages
 - Open RStudio and locate the “Console” to the left. Copy and paste the following commands into the console:
-install.packages("knitr")
-install.packages("nleqslv")
-install.packages("deSolve")
-install.packages("shiny")
-install.packages('tinytex')
-tinytex::install_tinytex()
+	- install.packages("knitr")
+	- install.packages("nleqslv")
+	- install.packages("deSolve")
+	- install.packages("shiny")
+	- install.packages('tinytex')
+	- tinytex::install_tinytex()
 
 # Run the program
 - Open RStudio and locate the “Files” window. Navigate to where you extracted the COHb files.
