@@ -53,7 +53,7 @@ options(formatR.arrow=TRUE,width=90)
 
 \section*{Abstract}
 
-On \Sexpr{input$requestDate} the Salt Lake Technical Center (SLTC) received a request (sample \Sexpr{input$ID}) from \Sexpr{input$complianceOfficer}, an OSHA compliance officer in the \Sexpr{input$areaOffice} area office of region \Sexpr{input$region}, to conduct a carboxyhemoglobin (COHb) calculation to determine the carbon monoxide exposure to employee \Sexpr{input$name} on the \Sexpr{input$exposureDate}.  The results of the calculation show that employee \Sexpr{input$name} was subjected to a calculated mean carbon monoxide occupational exposure of \Sexpr{round(x.CO_e.o()/ppm,1)} ppm (SAE =\Sexpr{round(SAE.exposure(),1)}\%) for a duration of \Sexpr{round(t_e()/minute)} minutes (Figure \ref{fig:plot}). The carboxyhemoglobin in the employee's blood reached a calculated peak level of \Sexpr{round(XCOHb.B()/percent,1)}\% at the end of the exposure. The calculated 8-hour total weight average (TWA) exposure is \Sexpr{round(TWA8Hours()/ppm)} ppm CO (SAE = \Sexpr{round(SAE.8hTWA(),1)}\%) which is \Sexpr{round(TWA8Hours()/OEL(),2)} times the \Sexpr{OelLabel()} of \Sexpr{round(OEL()/ppm,1)} ppm.  The methodology used to perform this calculation is explained in \textcolor{red}{METHOD} and the estimated input parameters reported to the SLTC to perform this calculation are presented in the following sections of this report.
+On \Sexpr{input$requestDate} the Salt Lake Technical Center (SLTC) received a request (sample \Sexpr{input$ID}) from \Sexpr{input$complianceOfficer}, an OSHA compliance officer in the \Sexpr{input$areaOffice} area office of region \Sexpr{input$region}, to conduct a carboxyhemoglobin (COHb) calculation to determine the carbon monoxide exposure to employee \Sexpr{input$name} on the \Sexpr{input$exposureDate}.  The results of the calculation show that employee \Sexpr{input$name} was subjected to a calculated mean carbon monoxide occupational exposure of \Sexpr{round(x.CO_e.o()/ppm,1)} ppm (SAE =\Sexpr{round(SAE.exposure(),1)}\%) for a duration of \Sexpr{round(t_e()/minute)} minutes (Figure \ref{fig:plot}). The carboxyhemoglobin in the employee's blood reached a calculated peak level of \Sexpr{round(XCOHb.B()/percent,1)}\% at the end of the exposure. The calculated 8-hour total weight average (TWA) exposure is \Sexpr{round(TWA8Hours()/ppm)} ppm CO (SAE = \Sexpr{round(SAE.8hTWA(),1)}\%) which is \Sexpr{round(TWA8Hours()/OEL(),2)} times the \Sexpr{OelLabel()} of \Sexpr{round(OEL()/ppm,1)} ppm.  A total of \Sexpr{N()} simulation were generated of which \Sexpr{n()} (\Sexpr{round(n()/N()*100)}\%) where used in calculation of the SAE because the remaining \Sexpr{N()-n()} (\Sexpr{round((N()-n())/N()*100)}\%) simulations resulted in a carboxyhemoglobin concentration greater than \Sexpr{maxCOHBcutoff()/percent}\%.  The methodology used to perform this calculation is explained in \textcolor{red}{METHOD} and the estimated input parameters reported to the SLTC to perform this calculation are presented in the following sections of this report.
 
 \begin{figure}[h]
 \centering
@@ -98,7 +98,7 @@ An employee weight of \Sexpr{round(input$w)}$\pm$\Sexpr{round(input$w.sd)} pound
 
 \section*{Exposure}
 
-The employee was performing work at an activity level of \Sexpr{round(input$AL_e,1)}$\pm$\Sexpr{round(input$AL_e.sd,1)} for \Sexpr{round(input$t_e)}$\pm$\Sexpr{round(input$t_e.sd)} minutes.  During this period of time the concentration of carboxyhemoglobin in the employee's blood raised from \Sexpr{round(XCOHb.A()/percent,2)}$\pm$\Sexpr{round(sd(XCOHb.A.MC())/percent,2)}\% to a maximum of \Sexpr{round(XCOHb.B()/percent,1)}$\pm$\Sexpr{round(sd(XCOHb.B.MC())/percent,1)}\%. This increase in carboxyhemoglobin concentration is represented by the red portion of the graph in Figure \ref{fig:plot}.
+The employee was performing work at an activity level of \Sexpr{round(input$AL_e,1)}$\pm$\Sexpr{round(input$AL_e.sd,1)} for \Sexpr{round(input$t_e)}$\pm$\Sexpr{round(input$t_e.sd)} minutes.  During this period of time the concentration of carboxyhemoglobin in the employee's blood raised from \Sexpr{round(XCOHb.A()/percent,2)}$\pm$\Sexpr{round(sd(XCOHb.A.mc())/percent,2)}\% to a maximum of \Sexpr{round(XCOHb.B()/percent,1)}$\pm$\Sexpr{round(sd(XCOHb.B.MC())/percent,1)}\%. This increase in carboxyhemoglobin concentration is represented by the red portion of the graph in Figure \ref{fig:plot}.
 
 \section*{Clearance}
 
@@ -121,11 +121,11 @@ level of \Sexpr{round(x.O2_t()/percent,1)}$\pm$\Sexpr{round(input$x.O2_t.sd,1)}\
    \section*{First Hand Smoke}
    %Smoking prior to exposure increases the initial concentration of COHb.
    The amount of COHb in the blood prior to exposure was estimated to be
-   \Sexpr{round(XCOHb.A()/percent,2)}$\pm$\Sexpr{round(sd(XCOHb.A.MC())/percent,2)}\%%
+   \Sexpr{round(XCOHb.A()/percent,2)}$\pm$\Sexpr{round(sd(XCOHb.A.mc())/percent,2)}\%%
    \ifthenelse{\equal{\Sexpr{input$SS_method}}{cigarettes}}{ based upon an average of \Sexpr{round(input$cigarettes,1)}$\pm$\Sexpr{round(input$cigarettes.sd,1)} cigarettes smoked per day.}{}%
    \ifthenelse{\equal{\Sexpr{input$SS_method}}{status}}{ based upon a smoker status of \Sexpr{round(input$SS,2)}$\pm$\Sexpr{round(SS.sd(),2)}.}{}%
    \ifthenelse{\equal{\Sexpr{input$SS_method}}{percent}}{.}{}
-   An exposure of \Sexpr{round(x.CO_e.fhs()/ppm,1)}$\pm$\Sexpr{round(sd(x.CO_e.fhs.MC())/ppm,1)} ppm carbon monoxide due to first hand smoke during the exposure phase is %
+   An exposure of \Sexpr{round(x.CO_e.fhs()/ppm,1)}$\pm$\Sexpr{round(sd(x.CO_e.fhs.mc())/ppm,1)} ppm carbon monoxide due to first hand smoke during the exposure phase is %
    \ifthenelse{\equal{\Sexpr{input$fhs_e_method}}{cigarettes}}{known from the employee smoking \Sexpr{round(input$fhs_e.cigarettes,1)}$\pm$\Sexpr{round(input$fhs_e.cigarettes.sd,1)} cigarettes during this phase.}{}%
    \ifthenelse{\equal{\Sexpr{input$fhs_e_method}}{percent}}{known from the employee smoking \Sexpr{round(input$fhs_e.percent,1)}$\pm$\Sexpr{round(input$fhs_e.percent.sd,1)}\% of the employee's normal smoking rate during this phase.}{}%
    \ifthenelse{\equal{\Sexpr{input$fhs_e_method}}{ppm}}{\Sexpr{round(input$fhs_e.ppm)}$\pm$\Sexpr{round(input$fhs_e.ppm.sd)} ppm.}{} %
@@ -138,7 +138,7 @@ level of \Sexpr{round(x.O2_t()/percent,1)}$\pm$\Sexpr{round(input$x.O2_t.sd,1)}\
 \ifthenelse{\equal{\Sexpr{input$shs_e}}{TRUE} \OR \equal{\Sexpr{input$shs_c}}{TRUE}}{
    \section*{Second Hand Smoke}
    \ifthenelse{\equal{\Sexpr{input$shs_e}}{TRUE}}{%
-      During the exposure phase \Sexpr{round(x.CO_e.shs()/ppm,1)}$\pm$\Sexpr{round(sd(x.CO_e.shs.MC())/ppm,1)} ppm carbon monoxide was attributed to second hand smoke%
+      During the exposure phase \Sexpr{round(x.CO_e.shs()/ppm,1)}$\pm$\Sexpr{round(sd(x.CO_e.shs.mc())/ppm,1)} ppm carbon monoxide was attributed to second hand smoke%
       \ifthenelse{\equal{\Sexpr{input$shs_e_method}}{time}}{ because the employee was in the presence of second hand smoke for \Sexpr{round(input$shs_e.time)}$\pm$\Sexpr{round(input$shs_e.time.sd)} minutes}{}%
       \ifthenelse{\equal{\Sexpr{input$shs_e_method}}{percent}}{ because the employee was in the presence of second hand smoke for \Sexpr{round(input$shs_e.percent,1)}$\pm$\Sexpr{round(input$shs_e.percent.sd,1)}\% of the phase}{}.
    }{}%
