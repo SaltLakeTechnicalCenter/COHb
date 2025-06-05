@@ -5,8 +5,15 @@ The following instructions have been successfully used to build a shiny servers 
 	- https://ubuntu.com/download/server
 - Burn this iso file to a USB device with something like Rufus.
 	- https://portableapps.com/apps/utilities/rufus-portable
-- Use the USB device to boot into the installation process. The installation process will ask for an admin username and password.  Clearly mark the server with this information.
-- At the end of the installation process the server will reboot. Remove the USB device and use the admin username and password to log into the system and follow the remaining instructions.
+- Use the USB device to boot into the installation process.  Leave all setting as default with the following exceptions.
+	- An admin username and password will be required.  Clearly mark the server with this information.
+	- Select the option to "Installed OpenSSH server" so that the steps in the following sections and be applied via "copy-and-paste" from a remote computer.
+- After the installation process finished the server will initiate a reboot. Remove the USB device when prompted.
+- Use the admin username and password to log into the system to obtain the IP address with the following command.
+	- hostname -I
+- Log out.
+	- exit
+- Execute the remaining steps via SSH from a remote computer.
 
 # Install software
 - sudo apt-get install r-base
